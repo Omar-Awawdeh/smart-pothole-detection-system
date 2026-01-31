@@ -1,9 +1,4 @@
-ultralytics
-tensorflow
-onnx
-onnx-tf
-roboflow
-kaggle
+# Minimal dependencies for utility scripts
 opencv-python
 matplotlib
 pandas
