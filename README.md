@@ -1,8 +1,8 @@
 # Pothole Detection Mobile Application
 
 **Graduation Project - Computer Engineering**  
-**Institution**: [Your University Name]  
-**Team Members**: Omar [+ Team Members]  
+**Institution**: Yarmouk University  
+**Team Members**: Omar Awawdeh, Hamza Al-Safi  
 **Academic Year**: 2025-2026
 
 ---
@@ -232,16 +232,6 @@ graduation_project/
 
 ---
 
-## Contributing
-
-This is an academic graduation project. For questions or collaboration:
-
-**Project Owner**: Omar  
-**Repository**: [GitHub URL if applicable]  
-**Contact**: [Your email]
-
----
-
 ## License
 
 Academic project - all rights reserved to the authors and institution.
@@ -253,7 +243,6 @@ Academic project - all rights reserved to the authors and institution.
 - **Datasets**: Roboflow Community, Kaggle Contributors
 - **Framework**: Ultralytics (YOLOv8)
 - **Platform**: Google Colab (free GPU access)
-- **Advisors**: [Your project advisor(s)]
 
 ---
 
