@@ -54,87 +54,13 @@ If YOLOv8n accuracy is below 75% mAP@50:
 
 **Note**: RDD dataset contains multiple classes (cracks, potholes, etc.) - filter for potholes only.
 
-### Phase 2: Collect Local Data (CRITICAL)
+### Phase 2: Collect Local Data (SKIPPED)
 
-**Why local data matters**:
-- Jordan road conditions differ from US/European datasets
-- Different asphalt types, colors, and textures
-- Local lighting conditions
-- Specific pothole characteristics
+**Note**: This phase has been skipped as per the updated plan. We will rely entirely on existing public datasets (Roboflow, Kaggle, RDD) to train the model. The importance of local data is noted for future improvements, but for the initial prototype, we will proceed with the gathered datasets.
 
-**Collection Guidelines**:
+### Phase 3: Data Labeling (SKIPPED)
 
-```
-Target: 200-300 images minimum
-
-Equipment:
-- Smartphone with decent camera (1080p+)
-- Car mount at 30-45° angle downward
-- Same setup as final deployment
-
-Conditions to cover:
-├── Time of day
-│   ├── Morning (8-10 AM) - soft shadows
-│   ├── Noon (12-2 PM) - harsh shadows
-│   └── Evening (4-6 PM) - golden light
-│
-├── Weather
-│   ├── Sunny/clear
-│   ├── Cloudy/overcast
-│   └── After rain (wet roads) if possible
-│
-├── Road types
-│   ├── Main highways
-│   ├── City streets
-│   ├── Residential areas
-│   └── University campus roads
-│
-└── Pothole variety
-    ├── Small (<20cm diameter)
-    ├── Medium (20-50cm)
-    ├── Large (>50cm)
-    ├── Shallow vs deep
-    └── Fresh vs weathered
-```
-
-**Collection Process**:
-
-```
-1. Mount phone in car (same position as deployment)
-2. Record video while driving slowly (20-40 km/h)
-3. When you see a pothole:
-   - Slow down
-   - Make sure it's in frame
-   - Continue recording
-4. Later, extract frames containing potholes
-5. Extract ~10 frames per pothole (different angles/distances)
-```
-
-### Phase 3: Data Labeling
-
-**Recommended Tool**: Roboflow (free tier: 10,000 images)
-
-**Labeling Process**:
-
-```
-1. Create Roboflow account
-2. Create new project: "Pothole Detection"
-3. Upload images
-4. Label each pothole with bounding box
-5. Class name: "pothole" (single class)
-
-Labeling guidelines:
-├── Draw box tightly around pothole edges
-├── Include the entire pothole, not just the dark center
-├── If pothole is partially visible, still label it
-├── If multiple potholes, label each separately
-└── Skip images where pothole is too small (<20px) or blurry
-```
-
-**Quality Checks**:
-- Consistent box sizing (not too loose, not too tight)
-- No missing labels (review each image)
-- Correct class assignment
+**Note**: Since we are using pre-labeled public datasets, manual labeling is not required for this phase. Any unlabeled data found in the public datasets (like RDD raw images) will be filtered out or auto-labeled if necessary, but the primary strategy is to use the existing YOLO-format labels.
 
 ### Phase 4: Dataset Preparation
 
@@ -531,7 +457,7 @@ Before proceeding to Android development, verify:
 | Checkpoint | Minimum | Target | Status |
 |------------|---------|--------|--------|
 | Dataset size | 2,500 images | 3,500+ images | □ |
-| Local Jordan data | 100 images | 200+ images | □ |
+| Local Jordan data | 0 images | 0 images | Skipped |
 | mAP@50 | 75% | >80% | □ |
 | mAP@50-95 | 40% | >50% | □ |
 | Precision | 70% | >80% | □ |
@@ -656,15 +582,13 @@ At the end of Week 1, Omar should have:
 
 | Day | Tasks | Hours | Deliverable |
 |-----|-------|-------|-------------|
-| Day 1 | Download existing datasets, set up Roboflow account | 2-3h | Raw datasets downloaded |
-| Day 2 | Collect local road data (drive and record) | 2-3h | 200+ local images |
-| Day 3 | Label local data in Roboflow | 2-3h | All images labeled |
-| Day 4 | Merge datasets, create splits, upload to Drive | 2-3h | Combined dataset ready |
-| Day 5 | Set up Colab, configure training, start run | 2-3h | Training started |
-| Day 6 | Monitor training, evaluate results | 2-3h | Training complete |
-| Day 7 | Export to TFLite, verify, document | 2-3h | TFLite model ready |
+| Day 1 | Download and merge existing datasets (Roboflow, Kaggle, RDD) | 3-4h | Combined dataset ready |
+| Day 2 | Pre-processing (verify labels, standardize format) | 2-3h | Cleaned dataset |
+| Day 3 | Set up Colab, configure training, start run | 2-3h | Training started |
+| Day 4 | Monitor training, evaluate results | 2-3h | Training complete |
+| Day 5 | Export to TFLite, verify, document | 2-3h | TFLite model ready |
 
-**Total: ~17-21 hours over 7 days**
+**Total: ~12-15 hours over 5 days**
 
 ---
 
