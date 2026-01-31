@@ -1,0 +1,10 @@
+# Dataset configuration for YOLOv8 training
+
+path: ./datasets/pothole_combined  # Root path relative to execution
+train: train/images
+val: valid/images
+test: test/images
+
+# Class configuration
+nc: 1  # Number of classes
+names: ['pothole']  # Class names

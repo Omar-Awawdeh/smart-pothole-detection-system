@@ -1,0 +1,9 @@
+ultralytics
+tensorflow
+onnx
+onnx-tf
+roboflow
+kaggle
+opencv-python
+matplotlib
+pandas
