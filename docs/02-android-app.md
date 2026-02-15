@@ -1,8 +1,27 @@
-# Android Mobile App Implementation Plan
+# Android Mobile App Implementation
 
 **Owner**: Omar  
 **Duration**: Weeks 2-3 (Days 8-21)  
-**Prerequisites**: Trained TFLite model from [AI Model Training](./01-ai-model.md)
+**Prerequisites**: Trained TFLite model from [AI Model Training](./01-ai-model.md) (already integrated)
+
+## Implementation Status (Feb 16, 2026)
+
+The Android app implementation is complete in this repository.
+
+Key code entry points:
+- App entry + navigation: `android/app/src/main/java/com/pothole/detection/MainActivity.kt`, `android/app/src/main/java/com/pothole/detection/ui/AppNavigation.kt`
+- Detection (TFLite + NMS): `android/app/src/main/java/com/pothole/detection/detection/PotholeDetector.kt`, `android/app/src/main/java/com/pothole/detection/detection/NmsProcessor.kt`
+- Camera preview + frame feed: `android/app/src/main/java/com/pothole/detection/ui/detection/components/CameraPreview.kt`
+- Overlay UI: `android/app/src/main/java/com/pothole/detection/ui/detection/components/DetectionOverlay.kt`
+- Location: `android/app/src/main/java/com/pothole/detection/location/LocationProvider.kt`
+- Pending uploads (Room) + background worker: `android/app/src/main/java/com/pothole/detection/data/local/AppDatabase.kt`, `android/app/src/main/java/com/pothole/detection/worker/UploadWorker.kt`
+- Model asset: `android/app/src/main/assets/best_float16.tflite`
+
+Build/run:
+```bash
+cd android
+./gradlew :app:assembleDebug
+```
 
 ---
 
