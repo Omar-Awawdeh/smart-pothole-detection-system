@@ -90,17 +90,17 @@ graduation_project/
 
 **Model Artifact (Android)**: `android/app/src/main/assets/best_float16.tflite`
 
-### 🚧 Phase 2: Android App Development
-**Status**: MVP implemented; iteration in progress
+### ✅ Phase 2: Android App Development - COMPLETE
+**Status**: Android app implementation complete (on-device detection + core screens)
 
-**Implemented (so far)**:
+**Implemented**:
 - On-device TFLite inference pipeline + overlay UI
 - App navigation + core screens (Detection, History, Settings)
 - Core layers (data/domain/DI/network/location/worker)
 
-**Next**:
-- Backend integration + authenticated reporting workflow
-- GPS-tagged report submission and background uploads
+**Next (outside Android scope)**:
+- Backend API implementation
+- End-to-end reporting flow verification against the backend
 
 ### 🔜 Phase 3: Backend API Development
 **Status**: Not started
@@ -188,11 +188,11 @@ cd android
 | Phase | Duration | Status |
 |-------|----------|--------|
 | AI Model Training | Week 1 (5 days) | ✅ Complete |
-| Android App Dev | Week 2-3 (10 days) | 🚧 In progress |
+| Android App Dev | Week 2-3 (10 days) | ✅ Complete |
 | Backend API Dev | Week 4 (5 days) | 🔜 Pending |
 | Integration & Testing | Week 5 (5 days) | 🔜 Pending |
 
-**Current**: Android MVP in progress
+**Current**: Backend development pending
 
 ---
 
@@ -274,5 +274,5 @@ Academic project - all rights reserved to the authors and institution.
 ---
 
 **Last Updated**: February 16, 2026  
-**Version**: 0.2.0  
-**Status**: Android MVP in progress 🚧
+**Version**: 0.3.0  
+**Status**: Android app complete ✅
