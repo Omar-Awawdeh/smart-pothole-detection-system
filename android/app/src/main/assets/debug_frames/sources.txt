@@ -1,0 +1,10 @@
+Copied from ai-model/datasets/pothole_combined/test/images/
+
+frame_01.jpg <- potholes-detection-yolov8_pothole_97.jpg
+frame_02.jpg <- potholes-detection-yolov8_pothole_373.jpg
+frame_03.jpg <- potholes-detection-yolov8_pothole_805.jpg
+frame_04.jpg <- potholes-detection-yolov8_pothole_1100.jpg
+frame_05.jpg <- potholes-detection-yolov8_pothole_1708.jpg
+frame_06.jpg <- roboflow_dataset_img-71_jpg.rf.cdf11db31e4a7deb2eb646717b72088f.jpg
+frame_07.jpg <- roboflow_dataset_img-137_jpg.rf.5c3cf778bb884760e276baacc8372f66.jpg
+frame_08.jpg <- roboflow_dataset_img-457_jpg.rf.ec4d7fc537d7170691c3c677bddc1ff4.jpg
