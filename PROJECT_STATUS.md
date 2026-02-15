@@ -3,8 +3,9 @@
 ## Project: Pothole Detection Mobile Application
 
 **Last Updated**: January 31, 2026  
-**Phase**: AI Model Training - COMPLETE ✅  
-**Status**: Ready for Android Development
+**Last Updated**: February 16, 2026  
+**Phase**: Android App Development - IN PROGRESS 🚧  
+**Status**: Android MVP implemented (on-device inference + core screens)
 
 ---
 
@@ -45,25 +46,29 @@ This project implements a mobile application for real-time pothole detection usi
 - ✅ Grade: **A+** (all metrics meet or exceed requirements)
 
 #### Next Action:
-- 🔄 Download model artifacts from Google Drive
-- 🔄 Copy `best_float16.tflite` to Android project
-- 🔄 Begin Android app development
+- ✅ `best_float16.tflite` integrated into Android assets: `android/app/src/main/assets/best_float16.tflite`
+- 🔄 Validate inference output vs expected metrics on target devices
+- 🔄 Calibrate thresholds (confidence/IoU) and performance profiling
 
 ---
 
-### Phase 2: Android App 🔜 PENDING
+### Phase 2: Android App 🚧 IN PROGRESS
 **Location**: `android/`  
-**Status**: Not started
+**Status**: MVP implemented
 
-#### To Do:
-- ⏳ Initialize Android project structure
-- ⏳ Integrate TensorFlow Lite
-- ⏳ Implement camera capture
-- ⏳ Real-time inference pipeline
-- ⏳ UI/UX implementation
-- ⏳ Backend API integration
+#### Completed:
+- ✅ Android Gradle project scaffold
+- ✅ Compose app shell + navigation
+- ✅ TFLite model packaged in app assets
+- ✅ Real-time detection pipeline (post-processing + overlay UI)
+- ✅ Screens: Detection, History, Settings, Debug
+- ✅ Core layers wired: data/domain/DI/network/location/worker
 
-**Depends on**: Trained `.tflite` model from Phase 1
+#### Next:
+- ⏳ Backend API integration (auth + report submission)
+- ⏳ GPS-tagged reporting + background upload reliability
+- ⏳ Persistence and offline queue UX polish
+- ⏳ End-to-end testing on physical devices
 
 ---
 
@@ -116,8 +121,12 @@ graduation_project/
 │   ├── datasets.zip (759MB)        ← For Colab upload
 │   └── README.md                   ← Overview
 │
-├── android/                        ← 🔜 Not started
-│   └── (pending)
+├── android/                        ← 🚧 In progress
+│   ├── app/
+│   ├── gradle/
+│   ├── gradlew
+│   ├── gradlew.bat
+│   └── settings.gradle.kts
 │
 ├── backend/                        ← 🔜 Not started
 │   └── (pending)
@@ -163,8 +172,8 @@ graduation_project/
 - Week 5: Integration & Testing
 
 ### Current Status
-- ✅ Week 1 Day 1-2: Dataset preparation complete
-- 🔄 Week 1 Day 3-5: Training ready to start
+- ✅ Phase 1: Model training + TFLite export complete
+- 🚧 Phase 2: Android MVP implemented
 
 ---
 
@@ -172,25 +181,17 @@ graduation_project/
 
 ### Immediate Next Steps:
 
-1. **Start Training** (Choose one):
-   - **Recommended**: Google Colab
-     - Read `ai-model/QUICK_START.md`
-     - Upload notebook and dataset to Drive
-     - Run training (2-3 hours)
-   
-   - **Alternative**: Local with GPU
-     - `cd ai-model && pip install -r requirements.txt`
-     - `python train.py`
+1. **Run the Android app**:
+   - Open `android/` in Android Studio
+   - Sync Gradle and run the `app` configuration
 
-2. **After Training Completes**:
-   - Download `.tflite` file from Google Drive
-   - Verify metrics meet targets
-   - Proceed to Android app development
+2. **Validate inference**:
+   - Confirm model loads from `android/app/src/main/assets/best_float16.tflite`
+   - Test on multiple devices; record FPS, latency, and false positives/negatives
 
-3. **Android Development**:
-   - Wait for trained model
-   - Follow `docs/02-android-app.md`
-   - Integrate model into app
+3. **Backend work (next milestone)**:
+   - Implement Spring Boot API + auth
+   - Wire report submission + upload queue in Android
 
 ---
 
@@ -223,6 +224,6 @@ For issues or questions during training:
 
 ---
 
-**Status**: Phase 1 preparation complete. Ready to train! 🚀
+**Status**: Android MVP implemented; backend integration pending.
 
-**Next Milestone**: Trained TFLite model (mAP@50 >75%)
+**Next Milestone**: End-to-end reporting flow (detection -> GPS-tagged report -> backend).

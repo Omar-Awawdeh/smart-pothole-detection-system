@@ -59,15 +59,16 @@ graduation_project/
 │   ├── 01-ai-model.md            # AI training plan
 │   └── 02-android-app.md         # Android development plan
 │
-├── ai-model/                      # ✅ COMPLETE - Ready for training
+├── ai-model/                      # ✅ COMPLETE - Trained + exported
 │   ├── datasets/                  # 2,642 labeled images
 │   ├── colab_training_notebook.ipynb  # Training pipeline
 │   ├── QUICK_START.md             # Fast track guide
 │   ├── COLAB_INSTRUCTIONS.md      # Detailed setup
 │   └── [training scripts]
 │
-├── android/                       # 🔜 PENDING
-│   └── [Android app source]
+├── android/                       # 🚧 IN PROGRESS
+│   ├── app/                        # Android application module
+│   └── [Gradle project files]
 │
 ├── backend/                       # 🔜 PENDING
 │   └── [Spring Boot API]
@@ -79,25 +80,27 @@ graduation_project/
 
 ## Current Status
 
-### ✅ Phase 1: AI Model Training - READY
-**Status**: All preparation complete
+### ✅ Phase 1: AI Model Training - COMPLETE
+**Status**: Model trained and exported to TensorFlow Lite
 
 - ✅ Dataset collected and preprocessed (2,642 images, 9,077 potholes)
-- ✅ Training environment configured (Google Colab notebook)
-- ✅ Export pipeline ready (TFLite conversion)
+- ✅ Training completed (YOLOv8n)
+- ✅ Exported to TFLite (float16)
 - ✅ Comprehensive documentation written
 
-**Next Action**: Upload to Google Colab and train (~2-3 hours)
+**Model Artifact (Android)**: `android/app/src/main/assets/best_float16.tflite`
 
-### 🔜 Phase 2: Android App Development
-**Status**: Pending model training completion
+### 🚧 Phase 2: Android App Development
+**Status**: MVP implemented; iteration in progress
 
-**Planned Features**:
-- Camera capture with real-time inference
-- Detection results overlay
-- Report submission with GPS
-- User authentication
-- Report history
+**Implemented (so far)**:
+- On-device TFLite inference pipeline + overlay UI
+- App navigation + core screens (Detection, History, Settings)
+- Core layers (data/domain/DI/network/location/worker)
+
+**Next**:
+- Backend integration + authenticated reporting workflow
+- GPS-tagged report submission and background uploads
 
 ### 🔜 Phase 3: Backend API Development
 **Status**: Not started
@@ -137,7 +140,15 @@ graduation_project/
 4. Download the trained `.tflite` model when complete
 
 ### For Android Development
-*Coming soon - awaiting trained model*
+1. Open `android/` in Android Studio
+2. Ensure Android SDK is installed (API 24+)
+3. Run the `app` configuration
+
+CLI build (optional):
+```bash
+cd android
+./gradlew :app:assembleDebug
+```
 
 ### For Backend Development
 *Coming soon - awaiting requirements finalization*
@@ -176,12 +187,12 @@ graduation_project/
 
 | Phase | Duration | Status |
 |-------|----------|--------|
-| AI Model Training | Week 1 (5 days) | ✅ Ready |
-| Android App Dev | Week 2-3 (10 days) | 🔜 Pending |
+| AI Model Training | Week 1 (5 days) | ✅ Complete |
+| Android App Dev | Week 2-3 (10 days) | 🚧 In progress |
 | Backend API Dev | Week 4 (5 days) | 🔜 Pending |
 | Integration & Testing | Week 5 (5 days) | 🔜 Pending |
 
-**Current**: End of Week 1 (Dataset Prep Complete)
+**Current**: Android MVP in progress
 
 ---
 
@@ -262,6 +273,6 @@ Academic project - all rights reserved to the authors and institution.
 
 ---
 
-**Last Updated**: January 30, 2026  
-**Version**: 0.1.0 (Pre-training)  
-**Status**: Phase 1 Complete ✅
+**Last Updated**: February 16, 2026  
+**Version**: 0.2.0  
+**Status**: Android MVP in progress 🚧
