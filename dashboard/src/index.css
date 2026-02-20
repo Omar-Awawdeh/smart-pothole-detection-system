@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3B82F6;
+  --color-primary-dark: #2563EB;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+
+  --color-pothole-unverified: #EAB308;
+  --color-pothole-verified: #22C55E;
+  --color-pothole-repaired: #3B82F6;
+  --color-pothole-false: #6B7280;
+}
