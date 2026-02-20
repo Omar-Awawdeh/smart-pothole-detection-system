@@ -73,7 +73,6 @@ export interface PaginatedResponse<T> {
 // ── Vehicle ──────────────────────────────────────────
 export interface Vehicle {
   id: string;
-  user_id: string;
   name: string;
   serial_number: string;
   is_active: boolean;

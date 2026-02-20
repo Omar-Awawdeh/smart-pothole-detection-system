@@ -37,7 +37,6 @@ namespace PotholeDetection.Api.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     serial_number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
@@ -47,12 +46,6 @@ namespace PotholeDetection.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_vehicles", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_vehicles_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -113,10 +106,6 @@ namespace PotholeDetection.Api.Migrations
                 column: "serial_number",
                 unique: true);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_vehicles_user_id",
-                table: "vehicles",
-                column: "user_id");
         }
 
         /// <inheritdoc />

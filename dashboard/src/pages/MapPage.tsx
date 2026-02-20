@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import { Layers } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { PotholeListItem, HeatmapPoint } from '@/lib/types';
@@ -9,58 +10,98 @@ import { PageLoading } from '@/components/ui/LoadingSpinner';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { markerColor, confidencePercent, truncateId } from '@/lib/utils';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
+
+interface MapViewportControllerProps {
+  points: PotholeListItem[];
+  selectedPoint: PotholeListItem | null;
+}
+
+function MapViewportController({ points, selectedPoint }: MapViewportControllerProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (points.length === 0) {
+      return;
+    }
+
+    if (selectedPoint) {
+      map.flyTo([selectedPoint.latitude, selectedPoint.longitude], Math.max(map.getZoom(), 15), {
+        animate: true,
+        duration: 0.35,
+      });
+      return;
+    }
+
+    const bounds = L.latLngBounds(points.map((p) => [p.latitude, p.longitude] as [number, number]));
+    map.fitBounds(bounds.pad(0.2), { animate: true });
+  }, [map, points, selectedPoint]);
+
+  return null;
+}
 
 export function MapPage() {
   const [potholes, setPotholes] = useState<PotholeListItem[]>([]);
   const [heatmap, setHeatmap] = useState<HeatmapPoint[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [selectedPointId, setSelectedPointId] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (pageNum: number, append: boolean) => {
-    if (append) setLoadingMore(true);
-    else setLoading(true);
+  const fetchAllPoints = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await api.potholes.list({
-        page: pageNum,
-        limit: PAGE_SIZE,
-        sortBy: 'detected_at',
-        sortOrder: 'DESC',
-      });
-      setPotholes((prev) => (append ? [...prev, ...res.data] : res.data));
-      setTotal(res.pagination.total);
+      let currentPage = 1;
+      let totalItems = 0;
+      let fetched: PotholeListItem[] = [];
+
+      while (true) {
+        const res = await api.potholes.list({
+          page: currentPage,
+          limit: PAGE_SIZE,
+          sortBy: 'detected_at',
+          sortOrder: 'DESC',
+        });
+
+        if (currentPage === 1) {
+          totalItems = res.pagination.total;
+        }
+
+        fetched = [...fetched, ...res.data];
+
+        if (fetched.length >= totalItems || res.data.length === 0) {
+          break;
+        }
+
+        currentPage += 1;
+      }
+
+      setPotholes(fetched);
+      setTotal(totalItems);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPage(1, false);
+    fetchAllPoints();
     api.stats.heatmap().then(setHeatmap);
-  }, [fetchPage]);
+  }, [fetchAllPoints]);
 
-  const handleLoadMore = () => {
-    const next = page + 1;
-    setPage(next);
-    fetchPage(next, true);
-  };
-
-  const hasMore = potholes.length < total;
+  const selectedPoint = selectedPointId
+    ? potholes.find((point) => point.id === selectedPointId) ?? null
+    : null;
 
   if (loading) return <PageLoading />;
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">Map View</h1>
-          <span className="text-sm text-gray-500">Showing {potholes.length} of {total}</span>
+          <span className="text-sm text-gray-500">Showing {potholes.length} of {total} points</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 lg:gap-4">
           <button
             onClick={() => setShowHeatmap((v) => !v)}
             className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -72,7 +113,7 @@ export function MapPage() {
             <Layers className="h-4 w-4" />
             Heatmap
           </button>
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
             <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-red-500" /> Unverified</span>
             <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-green-500" /> Verified</span>
             <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-blue-500" /> Repaired</span>
@@ -81,12 +122,14 @@ export function MapPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden rounded-xl shadow-sm">
+      <div className="min-h-[320px] flex-1 overflow-hidden rounded-xl shadow-sm">
         <MapContainer center={[31.50, 74.35]} zoom={12} className="h-full w-full">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          <MapViewportController points={potholes} selectedPoint={selectedPoint} />
 
           {showHeatmap && heatmap.map((h, i) => (
             <CircleMarker
@@ -106,6 +149,9 @@ export function MapPage() {
               key={p.id}
               center={[p.latitude, p.longitude]}
               radius={8}
+              eventHandlers={{
+                click: () => setSelectedPointId(p.id),
+              }}
               pathOptions={{
                 color: markerColor(p.status),
                 fillColor: markerColor(p.status),
@@ -115,7 +161,7 @@ export function MapPage() {
               <Popup minWidth={200}>
                 <div className="min-w-[200px]">
                   {p.image_url && (
-                    <img src={p.image_url} alt="Pothole" loading="lazy" className="mb-2 h-28 w-full rounded object-cover" />
+                    <img src={p.image_url} alt="Pothole" loading="lazy" className="mb-2 h-28 w-full rounded bg-gray-100 object-contain" />
                   )}
                   <p className="font-mono text-xs text-gray-500">{truncateId(p.id)}</p>
                   <p className="mt-1 text-sm font-medium">Confidence: {confidencePercent(p.confidence)}</p>
@@ -129,18 +175,6 @@ export function MapPage() {
           ))}
         </MapContainer>
       </div>
-
-      {hasMore && (
-        <div className="mt-3 text-center">
-          <button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            className="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            {loadingMore ? 'Loading…' : `Load more (${total - potholes.length} remaining)`}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

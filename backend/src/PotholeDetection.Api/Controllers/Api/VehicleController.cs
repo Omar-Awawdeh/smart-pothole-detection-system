@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PotholeDetection.Api.DTOs;
@@ -22,8 +21,7 @@ public class VehicleController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<VehicleResponse>> Create([FromBody] VehicleCreateRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var result = await _vehicleService.CreateAsync(request, userId);
+        var result = await _vehicleService.CreateAsync(request);
         return Created($"/api/vehicles/{result.Id}", result);
     }
 

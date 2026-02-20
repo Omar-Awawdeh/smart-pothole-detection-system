@@ -7,7 +7,7 @@ namespace PotholeDetection.Api.Services;
 
 public interface IVehicleService
 {
-    Task<VehicleResponse> CreateAsync(VehicleCreateRequest request, Guid userId);
+    Task<VehicleResponse> CreateAsync(VehicleCreateRequest request);
     Task<List<VehicleResponse>> ListAsync();
     Task<VehicleResponse?> GetByIdAsync(Guid id);
     Task<VehicleResponse?> UpdateAsync(Guid id, VehicleUpdateRequest request);
@@ -24,14 +24,13 @@ public class VehicleService : IVehicleService
         _db = db;
     }
 
-    public async Task<VehicleResponse> CreateAsync(VehicleCreateRequest request, Guid userId)
+    public async Task<VehicleResponse> CreateAsync(VehicleCreateRequest request)
     {
         if (await _db.Vehicles.AnyAsync(v => v.SerialNumber == request.SerialNumber))
             throw new InvalidOperationException("Serial number already exists");
 
         var vehicle = new Vehicle
         {
-            UserId = userId,
             Name = request.Name,
             SerialNumber = request.SerialNumber
         };
@@ -44,7 +43,11 @@ public class VehicleService : IVehicleService
 
     public async Task<List<VehicleResponse>> ListAsync()
     {
-        var vehicles = await _db.Vehicles.OrderByDescending(v => v.CreatedAt).ToListAsync();
+        var vehicles = await _db.Vehicles
+            .Where(v => v.IsActive)
+            .OrderByDescending(v => v.CreatedAt)
+            .ToListAsync();
+
         return vehicles.Select(MapToResponse).ToList();
     }
 
@@ -72,7 +75,7 @@ public class VehicleService : IVehicleService
         var vehicle = await _db.Vehicles.FindAsync(id);
         if (vehicle == null) return false;
 
-        vehicle.IsActive = false;
+        _db.Vehicles.Remove(vehicle);
         await _db.SaveChangesAsync();
         return true;
     }
@@ -125,7 +128,6 @@ public class VehicleService : IVehicleService
         return new VehicleResponse
         {
             Id = v.Id,
-            UserId = v.UserId,
             Name = v.Name,
             SerialNumber = v.SerialNumber,
             IsActive = v.IsActive,

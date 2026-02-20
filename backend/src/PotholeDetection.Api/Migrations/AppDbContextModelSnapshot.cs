@@ -179,16 +179,10 @@ namespace PotholeDetection.Api.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("serial_number");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("SerialNumber")
                         .IsUnique();
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("vehicles");
                 });
@@ -202,22 +196,6 @@ namespace PotholeDetection.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("PotholeDetection.Api.Models.Vehicle", b =>
-                {
-                    b.HasOne("PotholeDetection.Api.Models.User", "User")
-                        .WithMany("Vehicles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PotholeDetection.Api.Models.User", b =>
-                {
-                    b.Navigation("Vehicles");
                 });
 
             modelBuilder.Entity("PotholeDetection.Api.Models.Vehicle", b =>

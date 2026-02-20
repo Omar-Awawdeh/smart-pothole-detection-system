@@ -31,12 +31,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Vehicle>(entity =>
         {
             entity.HasIndex(v => v.SerialNumber).IsUnique();
-            entity.HasIndex(v => v.UserId);
-
-            entity.HasOne(v => v.User)
-                .WithMany(u => u.Vehicles)
-                .HasForeignKey(v => v.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Pothole>(entity =>

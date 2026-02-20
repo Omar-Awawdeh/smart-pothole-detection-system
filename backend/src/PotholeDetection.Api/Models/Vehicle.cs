@@ -11,10 +11,6 @@ public class Vehicle
     public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required]
-    [Column("user_id")]
-    public Guid UserId { get; set; }
-
-    [Required]
     [MaxLength(100)]
     [Column("name")]
     public string Name { get; set; } = string.Empty;
@@ -32,9 +28,6 @@ public class Vehicle
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    [ForeignKey("UserId")]
-    public User? User { get; set; }
 
     public ICollection<Pothole> Potholes { get; set; } = new List<Pothole>();
 }

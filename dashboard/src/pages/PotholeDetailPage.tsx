@@ -88,7 +88,7 @@ export function PotholeDetailPage() {
                 src={pothole.image_url}
                 alt="Pothole"
                 loading="lazy"
-                className="h-64 w-full object-cover"
+                className="h-64 w-full bg-gray-100 object-contain"
               />
             </div>
           )}

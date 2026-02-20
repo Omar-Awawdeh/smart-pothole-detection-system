@@ -42,5 +42,4 @@ public class User
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
 }

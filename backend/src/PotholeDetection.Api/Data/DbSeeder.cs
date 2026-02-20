@@ -60,7 +60,6 @@ public static class DbSeeder
                 new Vehicle
                 {
                     Id           = Vehicle1Id,
-                    UserId       = AdminId,
                     Name         = "Road Surveyor Alpha",
                     SerialNumber = "RSA-001-LHR",
                     IsActive     = true,
@@ -70,7 +69,6 @@ public static class DbSeeder
                 new Vehicle
                 {
                     Id           = Vehicle2Id,
-                    UserId       = OperatorId,
                     Name         = "Road Surveyor Beta",
                     SerialNumber = "RSB-002-LHR",
                     IsActive     = true,

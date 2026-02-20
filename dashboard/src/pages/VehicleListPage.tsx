@@ -6,8 +6,12 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageLoading } from '@/components/ui/LoadingSpinner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { formatDate } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 
 export function VehicleListPage() {
+  const { isAdmin } = useAuth();
+  const { addToast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -37,21 +41,38 @@ export function VehicleListPage() {
       setSerial('');
       setShowAdd(false);
       fetchVehicles();
+      addToast('Vehicle created', 'The vehicle was added successfully.', 'success');
+    } catch {
+      addToast('Failed to create vehicle', 'Please check your permissions and input.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
   const toggleActive = async (v: Vehicle) => {
-    await api.vehicles.update(v.id, { isActive: !v.is_active });
-    fetchVehicles();
+    try {
+      await api.vehicles.update(v.id, { isActive: !v.is_active });
+      fetchVehicles();
+      addToast(
+        v.is_active ? 'Vehicle deactivated' : 'Vehicle activated',
+        'Vehicle status updated successfully.',
+        'success',
+      );
+    } catch {
+      addToast('Failed to update vehicle', 'Only admin can change vehicle status.', 'error');
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await api.vehicles.delete(deleteId);
-    setDeleteId(null);
-    fetchVehicles();
+    try {
+      await api.vehicles.delete(deleteId);
+      setDeleteId(null);
+      fetchVehicles();
+      addToast('Vehicle deleted', 'The vehicle was removed successfully.', 'success');
+    } catch {
+      addToast('Failed to delete vehicle', 'Only admin can delete vehicles.', 'error');
+    }
   };
 
   if (loading) return <PageLoading />;
@@ -145,18 +166,22 @@ export function VehicleListPage() {
             </p>
 
             <div className="mt-4 flex gap-2">
-              <button
-                onClick={() => toggleActive(v)}
-                className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
-              >
-                <Power className="h-3 w-3" /> {v.is_active ? 'Deactivate' : 'Activate'}
-              </button>
-              <button
-                onClick={() => setDeleteId(v.id)}
-                className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="h-3 w-3" /> Delete
-              </button>
+              {isAdmin && (
+                <>
+                  <button
+                    onClick={() => toggleActive(v)}
+                    className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                  >
+                    <Power className="h-3 w-3" /> {v.is_active ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(v.id)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3 w-3" /> Delete
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}

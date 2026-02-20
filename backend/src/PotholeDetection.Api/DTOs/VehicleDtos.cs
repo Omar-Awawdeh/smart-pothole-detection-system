@@ -18,9 +18,6 @@ public class VehicleResponse
 {
     public Guid Id { get; set; }
 
-    [JsonPropertyName("user_id")]
-    public Guid UserId { get; set; }
-
     public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("serial_number")]
