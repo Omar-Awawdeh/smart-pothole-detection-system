@@ -22,7 +22,7 @@ data class SettingsUiState(
     val confidenceThreshold: Float = 0.5f,
     val frameSkipRate: Int = 2,
     val apiBaseUrl: String = "https://api.yoursite.com",
-    val vehicleId: String = "",
+    val vehicleId: String = "22222222-0000-0000-0000-000000000001",
     val authEmail: String = "",
     val authPassword: String = ""
 )
@@ -45,7 +45,8 @@ class SettingsViewModel @Inject constructor(
             frameSkipRate = sharedPreferences.getInt(KEY_FRAME_SKIP_RATE, 2),
             apiBaseUrl = sharedPreferences.getString(KEY_API_BASE_URL, "https://api.yoursite.com")
                 ?: "https://api.yoursite.com",
-            vehicleId = sharedPreferences.getString(KEY_VEHICLE_ID, "") ?: "",
+            vehicleId = sharedPreferences.getString(KEY_VEHICLE_ID, "22222222-0000-0000-0000-000000000001")
+                ?: "22222222-0000-0000-0000-000000000001",
             authEmail = sharedPreferences.getString(KEY_AUTH_EMAIL, "") ?: "",
             authPassword = sharedPreferences.getString(KEY_AUTH_PASSWORD, "") ?: ""
         )

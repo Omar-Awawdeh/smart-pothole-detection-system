@@ -9,6 +9,7 @@ import com.pothole.detection.data.local.PendingUpload
 import com.pothole.detection.data.repository.PotholeRepository
 import com.pothole.detection.detection.DetectionResult
 import com.pothole.detection.detection.PotholeDetector
+import com.pothole.detection.detection.drawDetectionsOnBitmap
 import com.pothole.detection.worker.UploadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -114,12 +115,13 @@ class DebugInferenceViewModel @Inject constructor(
 
                 val bestDetection = result.detections.maxBy { it.confidence }
                 val timestamp = System.currentTimeMillis()
+                val annotatedBitmap = drawDetectionsOnBitmap(bitmap, result.detections)
                 val imageFile = withContext(Dispatchers.IO) {
-                    saveFrameAsJpeg(bitmap, timestamp)
+                    saveFrameAsJpeg(annotatedBitmap, timestamp)
                 }
 
                 val prefs = context.getSharedPreferences("pothole_detection_prefs", Context.MODE_PRIVATE)
-                val vehicleId = prefs.getString("vehicle_id", "test-device") ?: "test-device"
+                val vehicleId = prefs.getString("vehicle_id", "22222222-0000-0000-0000-000000000001") ?: "22222222-0000-0000-0000-000000000001"
 
                 val upload = PendingUpload(
                     localImagePath = imageFile.absolutePath,
