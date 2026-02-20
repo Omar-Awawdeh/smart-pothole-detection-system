@@ -2,7 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using PotholeDetection.Api.Data;
 using PotholeDetection.Api.DTOs;
+using Microsoft.AspNetCore.SignalR;
+using PotholeDetection.Api.Hubs;
 using PotholeDetection.Api.Models;
+using System.Text;
 
 namespace PotholeDetection.Api.Services;
 
@@ -14,18 +17,22 @@ public interface IPotholeService
     Task<PotholeDetailResponse?> GetByIdAsync(Guid id);
     Task<PotholeDetailResponse?> UpdateAsync(Guid id, PotholeUpdateRequest request);
     Task<bool> DeleteAsync(Guid id);
+    Task<BulkActionResponse> BulkActionAsync(BulkActionRequest request);
+    Task<byte[]> ExportCsvAsync(PotholeListQuery query);
 }
 
 public class PotholeService : IPotholeService
 {
     private readonly AppDbContext _db;
     private readonly IStorageService _storage;
+    private readonly IHubContext<PotholeHub> _hub;
     private const double DeduplicationRadiusMeters = 15;
 
-    public PotholeService(AppDbContext db, IStorageService storage)
+    public PotholeService(AppDbContext db, IStorageService storage, IHubContext<PotholeHub> hub)
     {
         _db = db;
         _storage = storage;
+        _hub = hub;
     }
 
     public async Task<PotholeResponse> CreateAsync(double latitude, double longitude, double confidence,
@@ -95,6 +102,16 @@ public class PotholeService : IPotholeService
         }
 
         await _db.SaveChangesAsync();
+
+        await _hub.Clients.All.SendAsync("NewPothole", new
+        {
+            id = pothole.Id,
+            latitude = pothole.Latitude,
+            longitude = pothole.Longitude,
+            severity = pothole.Severity.ToString().ToLower(),
+            confidence = pothole.Confidence,
+            detected_at = pothole.DetectedAt
+        });
 
         return new PotholeResponse
         {
@@ -214,6 +231,66 @@ public class PotholeService : IPotholeService
         _db.Potholes.Remove(pothole);
         await _db.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<byte[]> ExportCsvAsync(PotholeListQuery query)
+    {
+        var q = _db.Potholes.AsQueryable();
+
+        if (!string.IsNullOrEmpty(query.Status))
+        {
+            var status = ParseStatus(query.Status);
+            if (status.HasValue) q = q.Where(p => p.Status == status.Value);
+        }
+        if (!string.IsNullOrEmpty(query.Severity))
+        {
+            if (Enum.TryParse<PotholeSeverity>(query.Severity, true, out var sev))
+                q = q.Where(p => p.Severity == sev);
+        }
+        if (query.VehicleId.HasValue) q = q.Where(p => p.VehicleId == query.VehicleId.Value);
+        if (query.StartDate.HasValue) q = q.Where(p => p.DetectedAt >= query.StartDate.Value);
+        if (query.EndDate.HasValue) q = q.Where(p => p.DetectedAt <= query.EndDate.Value);
+
+        q = q.OrderByDescending(p => p.DetectedAt);
+        var potholes = await q.ToListAsync();
+
+        var sb = new StringBuilder();
+        sb.AppendLine("id,latitude,longitude,confidence,status,severity,confirmation_count,detected_at,repaired_at,vehicle_id");
+        foreach (var p in potholes)
+        {
+            sb.AppendLine(p.Id + "," + p.Latitude + "," + p.Longitude + "," + p.Confidence + "," + ConvertStatus(p.Status) + "," + p.Severity.ToString().ToLower() + "," + p.ConfirmationCount + "," + p.DetectedAt.ToString("O") + "," + (p.RepairedAt.HasValue ? p.RepairedAt.Value.ToString("O") : "") + "," + p.VehicleId);
+        }
+        return Encoding.UTF8.GetBytes(sb.ToString());
+    }
+    public async Task<BulkActionResponse> BulkActionAsync(BulkActionRequest request)
+    {
+        var potholes = await _db.Potholes
+            .Where(p => request.Ids.Contains(p.Id))
+            .ToListAsync();
+
+        if (potholes.Count == 0) return new BulkActionResponse { Affected = 0 };
+
+        switch (request.Action.ToLower())
+        {
+            case "verify":
+                foreach (var p in potholes) { p.Status = PotholeStatus.Verified; p.UpdatedAt = DateTime.UtcNow; }
+                break;
+            case "repair":
+                foreach (var p in potholes) { p.Status = PotholeStatus.Repaired; p.RepairedAt = DateTime.UtcNow; p.UpdatedAt = DateTime.UtcNow; }
+                break;
+            case "false_positive":
+                foreach (var p in potholes) { p.Status = PotholeStatus.FalsePositive; p.UpdatedAt = DateTime.UtcNow; }
+                break;
+            case "delete":
+                _db.Potholes.RemoveRange(potholes);
+                await _db.SaveChangesAsync();
+                return new BulkActionResponse { Affected = potholes.Count };
+            default:
+                throw new ArgumentException("Unknown action: " + request.Action);
+        }
+
+        await _db.SaveChangesAsync();
+        return new BulkActionResponse { Affected = potholes.Count };
     }
 
     private static PotholeSeverity CalculateSeverity(double confidence)

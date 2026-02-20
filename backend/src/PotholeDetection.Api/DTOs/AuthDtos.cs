@@ -44,3 +44,11 @@ public class UserDto
     public string Name { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
 }
+
+public class UpdateProfileRequest
+{
+    public string? Name { get; set; }
+    public string? Email { get; set; }
+    public string? CurrentPassword { get; set; }
+    public string? NewPassword { get; set; }
+}

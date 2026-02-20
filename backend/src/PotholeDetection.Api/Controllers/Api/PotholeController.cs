@@ -78,4 +78,18 @@ public class PotholeController : ControllerBase
         if (!deleted) return NotFound(new { success = false, error = new { code = "NOT_FOUND", message = "Pothole not found" } });
         return NoContent();
     }
+    [Authorize(Roles = "admin,operator")]
+    [HttpPost("bulk")]
+    public async Task<ActionResult<BulkActionResponse>> BulkAction([FromBody] BulkActionRequest request)
+    {
+        var result = await _potholeService.BulkActionAsync(request);
+        return Ok(result);
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] PotholeListQuery query)
+    {
+        var csvBytes = await _potholeService.ExportCsvAsync(query);
+        return File(csvBytes, "text/csv", "potholes-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ".csv");
+    }
 }

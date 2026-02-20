@@ -17,6 +17,7 @@ public interface IAuthService
     Task<AuthResponse> RegisterAsync(RegisterRequest request);
     Task<AuthTokens> RefreshTokenAsync(string refreshToken);
     Task<UserDto> GetCurrentUserAsync(Guid userId);
+    Task<UserDto> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
 }
 
 public class AuthService : IAuthService
@@ -94,6 +95,34 @@ public class AuthService : IAuthService
         if (user == null)
             throw new KeyNotFoundException("User not found");
 
+        return MapToDto(user);
+    }
+
+    public async Task<UserDto> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user == null) throw new KeyNotFoundException("User not found");
+
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            user.Name = request.Name;
+
+        if (!string.IsNullOrWhiteSpace(request.Email) && request.Email != user.Email)
+        {
+            if (await _db.Users.AnyAsync(u => u.Email == request.Email && u.Id != userId))
+                throw new InvalidOperationException("Email already in use");
+            user.Email = request.Email;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.NewPassword))
+        {
+            if (string.IsNullOrWhiteSpace(request.CurrentPassword) ||
+                !BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+                throw new UnauthorizedAccessException("Current password is incorrect");
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        }
+
+        user.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
         return MapToDto(user);
     }
 

@@ -92,11 +92,25 @@ export interface VehicleUpdateRequest {
 }
 
 // ── User (admin) ─────────────────────────────────────
+export interface UserCreateRequest {
+  email: string;
+  password: string;
+  name: string;
+  role?: string;
+}
+
 export interface UserUpdateRequest {
   name?: string;
   role?: string;
   email?: string;
 }
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
 
 // ── Stats ────────────────────────────────────────────
 export interface StatsOverview {

@@ -12,7 +12,9 @@ import type {
   PotholeUpdateRequest,
   StatsOverview,
   StatusStat,
+  UpdateProfileRequest,
   User,
+  UserCreateRequest,
   UserUpdateRequest,
   Vehicle,
   VehicleCreateRequest,
@@ -127,6 +129,8 @@ export const api = {
       client
         .post<AuthTokens>('/api/auth/refresh', { refresh_token: refreshToken })
         .then((r) => r.data),
+    updateProfile: (data: UpdateProfileRequest) =>
+      client.patch<User>('/api/auth/profile', data).then((r) => r.data),
   },
 
   potholes: {
@@ -140,6 +144,24 @@ export const api = {
       client.patch<PotholeDetail>(`/api/potholes/${id}`, data).then((r) => r.data),
     delete: (id: string) =>
       client.delete(`/api/potholes/${id}`).then(() => undefined),
+    exportCsv: (params?: PotholeListParams) => {
+      const token = localStorage.getItem('accessToken');
+      const query = new URLSearchParams();
+      if (params?.status) query.set('status', params.status);
+      if (params?.severity) query.set('severity', params.severity);
+      const url = `/api/potholes/export?${query.toString()}`;
+      const a = document.createElement('a');
+      a.href = url;
+      return fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => r.blob())
+        .then((blob) => {
+          a.href = URL.createObjectURL(blob);
+          a.download = `potholes-${new Date().toISOString().slice(0, 10)}.csv`;
+          a.click();
+        });
+    },
+    bulkAction: (data: { ids: string[]; action: string }) =>
+      client.post<{ affected: number }>('/api/potholes/bulk', data).then((r) => r.data),
   },
 
   vehicles: {
@@ -161,10 +183,14 @@ export const api = {
 
   users: {
     list: () => client.get<User[]>('/api/users').then((r) => r.data),
+    create: (data: UserCreateRequest) =>
+      client.post<User>('/api/users', data).then((r) => r.data),
     update: (id: string, data: UserUpdateRequest) =>
       client.patch<User>(`/api/users/${id}`, data).then((r) => r.data),
     delete: (id: string) =>
       client.delete(`/api/users/${id}`).then(() => undefined),
+    bulkAction: (data: { ids: string[]; action: string }) =>
+      client.post<{ affected: number }>('/api/potholes/bulk', data).then((r) => r.data),
   },
 
   stats: {

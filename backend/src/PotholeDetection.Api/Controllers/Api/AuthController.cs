@@ -55,6 +55,16 @@ public class AuthController : ControllerBase
         return Ok(user);
     }
 
+
+    [Authorize]
+    [HttpPatch("profile")]
+    public async Task<ActionResult<UserDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
+    {
+        var userId = GetUserId();
+        var user = await _authService.UpdateProfileAsync(userId, request);
+        return Ok(user);
+    }
+
     private Guid GetUserId()
     {
         var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

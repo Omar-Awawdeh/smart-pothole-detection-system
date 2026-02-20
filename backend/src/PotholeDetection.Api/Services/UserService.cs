@@ -9,6 +9,7 @@ public interface IUserService
 {
     Task<List<UserDto>> ListAsync();
     Task<UserDto?> GetByIdAsync(Guid id);
+    Task<UserDto> CreateAsync(UserCreateRequest request);
     Task<UserDto?> UpdateAsync(Guid id, UserUpdateRequest request);
     Task<bool> DeleteAsync(Guid id);
 }
@@ -32,6 +33,29 @@ public class UserService : IUserService
     {
         var user = await _db.Users.FindAsync(id);
         return user == null ? null : MapToDto(user);
+    }
+
+    public async Task<UserDto> CreateAsync(UserCreateRequest request)
+    {
+        if (await _db.Users.AnyAsync(u => u.Email == request.Email))
+            throw new InvalidOperationException("Email already exists");
+
+        var role = string.IsNullOrEmpty(request.Role)
+            ? UserRole.Viewer
+            : Enum.TryParse<UserRole>(request.Role, true, out var parsed) ? parsed : UserRole.Viewer;
+
+        var user = new User
+        {
+            Email = request.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Name = request.Name,
+            Role = role
+        };
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+
+        return MapToDto(user);
     }
 
     public async Task<UserDto?> UpdateAsync(Guid id, UserUpdateRequest request)

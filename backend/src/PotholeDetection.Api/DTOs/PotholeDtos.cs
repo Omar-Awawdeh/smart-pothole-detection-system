@@ -84,3 +84,14 @@ public class PaginationMeta
     public int Total { get; set; }
     public int TotalPages { get; set; }
 }
+
+public class BulkActionRequest
+{
+    public List<Guid> Ids { get; set; } = new();
+    public string Action { get; set; } = string.Empty; // "verify" | "repair" | "false_positive" | "delete"
+}
+
+public class BulkActionResponse
+{
+    public int Affected { get; set; }
+}

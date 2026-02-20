@@ -42,16 +42,18 @@ public class StatsService : IStatsService
     {
         var since = DateTime.UtcNow.Date.AddDays(-days);
 
-        var stats = await _db.Potholes
+        var raw = await _db.Potholes
             .Where(p => p.DetectedAt >= since)
             .GroupBy(p => p.DetectedAt.Date)
-            .Select(g => new DailyStat
-            {
-                Date = g.Key.ToString("yyyy-MM-dd"),
-                Count = g.Count()
-            })
-            .OrderBy(s => s.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .OrderBy(g => g.Date)
             .ToListAsync();
+
+        var stats = raw.Select(g => new DailyStat
+        {
+            Date = g.Date.ToString("yyyy-MM-dd"),
+            Count = g.Count
+        }).ToList();
 
         return stats;
     }

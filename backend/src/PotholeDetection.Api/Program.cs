@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using PotholeDetection.Api.Configuration;
 using PotholeDetection.Api.Data;
 using PotholeDetection.Api.Middleware;
+using PotholeDetection.Api.Hubs;
 using PotholeDetection.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,9 +109,19 @@ builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IStorageService, S3StorageService>();
 
 // ---------------------------------------------------------------------------
+// Response compression (gzip for JSON/text — not images, they're already compressed)
+// ---------------------------------------------------------------------------
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
+// ---------------------------------------------------------------------------
 // Controllers + JSON
 // ---------------------------------------------------------------------------
 builder.Services.AddControllers();
+
+builder.Services.AddSignalR();
 
 // ---------------------------------------------------------------------------
 // Swagger / OpenAPI
@@ -162,8 +173,18 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 // ---------------------------------------------------------------------------
+// Seed development data
+// ---------------------------------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbSeeder.SeedAsync(db);
+}
+
+// ---------------------------------------------------------------------------
 // Middleware pipeline
 // ---------------------------------------------------------------------------
+app.UseResponseCompression();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -181,6 +202,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<PotholeHub>("/hubs/potholes");
 app.MapHealthChecks("/health");
 
 app.Run();
