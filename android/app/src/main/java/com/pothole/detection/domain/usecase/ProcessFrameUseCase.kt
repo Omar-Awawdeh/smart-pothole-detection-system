@@ -9,6 +9,7 @@ import com.pothole.detection.data.repository.PotholeRepository
 import com.pothole.detection.deduplication.PotholeDeduplicator
 import com.pothole.detection.detection.DetectionResult
 import com.pothole.detection.detection.PotholeDetector
+import com.pothole.detection.detection.drawDetectionsOnBitmap
 import com.pothole.detection.location.LocationProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -43,14 +44,15 @@ class ProcessFrameUseCase @Inject constructor(
         val queuedUploadIds = mutableListOf<String>()
 
         if (detections.isNotEmpty() && location != null) {
-            val vehicleId = sharedPreferences.getString("vehicle_id", "") ?: ""
+            val vehicleId = sharedPreferences.getString("vehicle_id", "22222222-0000-0000-0000-000000000001") ?: "22222222-0000-0000-0000-000000000001"
 
             for (detection in detections) {
                 if (deduplicator.shouldReport(location.latitude, location.longitude)) {
                     reportedCount++
 
                     val timestamp = System.currentTimeMillis()
-                    val imageFile = saveFrameAsJpeg(bitmap, timestamp)
+                    val annotatedBitmap = drawDetectionsOnBitmap(bitmap, detections)
+                    val imageFile = saveFrameAsJpeg(annotatedBitmap, timestamp)
                     val upload = PendingUpload(
                         localImagePath = imageFile.absolutePath,
                         latitude = location.latitude,
