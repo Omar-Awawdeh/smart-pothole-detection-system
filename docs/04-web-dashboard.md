@@ -1,5 +1,7 @@
 # Web Dashboard Implementation Plan
 
+> Note: This file is planning-oriented. For current frontend behavior (map fit, all points loading, image display, active ports), see `docs/07-current-implementation.md`.
+
 **Owner**: Hamza  
 **Duration**: Weeks 2-3 (Days 8-21, parallel with backend)  
 **Stack**: Astro + React + Tailwind CSS + Leaflet

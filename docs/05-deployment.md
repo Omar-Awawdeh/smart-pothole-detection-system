@@ -1,5 +1,7 @@
 # Deployment Guide - Hetzner VPS Setup
 
+> Note: Use `docs/07-current-implementation.md` as the source of truth for local default ports and current service behavior.
+
 This document covers the complete deployment process for the Smart Pothole Detection System on a Hetzner VPS, including server provisioning, Docker configuration, database setup, Nginx reverse proxy, SSL certificates, and domain configuration.
 
 ---

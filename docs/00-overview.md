@@ -1,5 +1,7 @@
 # Smart Pothole Detection System - Implementation Overview
 
+> Note: This document includes original planning architecture. For the current running implementation details (stack, ports, schema updates), see `docs/07-current-implementation.md`.
+
 ## Project Summary
 
 A smart pothole detection system that uses smartphone-based AI to detect road potholes in real-time, records their GPS locations, and reports them to a centralized dashboard for city maintenance teams.
@@ -572,3 +574,4 @@ DEDUP_TIME_WINDOW_MS=60000
 - [Web Dashboard Plan](./04-web-dashboard.md)
 - [Deployment Guide](./05-deployment.md)
 - [Timeline & Task Breakdown](./06-timeline.md)
+- [Current Implementation Notes](./07-current-implementation.md)

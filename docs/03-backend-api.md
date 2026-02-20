@@ -1,5 +1,7 @@
 # Backend API Implementation Plan
 
+> Note: This file is an implementation plan. For currently deployed behavior and schema notes, see `docs/07-current-implementation.md`.
+
 **Owner**: Hamza  
 **Duration**: Weeks 1-3 (Days 1-21)  
 **Stack**: Fastify + TypeScript + PostgreSQL/PostGIS + AWS S3
@@ -251,7 +253,7 @@ CREATE INDEX idx_vehicles_user_id ON vehicles(user_id);
 | GET | `/api/vehicles` | List all vehicles | Yes |
 | GET | `/api/vehicles/:id` | Get vehicle details | Yes |
 | PATCH | `/api/vehicles/:id` | Update vehicle | Yes (admin) |
-| DELETE | `/api/vehicles/:id` | Deactivate vehicle | Yes (admin) |
+| DELETE | `/api/vehicles/:id` | Delete vehicle | Yes (admin) |
 | GET | `/api/vehicles/:id/potholes` | Get potholes reported by vehicle | Yes |
 
 ### User Routes (`/api/users`)

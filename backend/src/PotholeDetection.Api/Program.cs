@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using PotholeDetection.Api.Configuration;
 using PotholeDetection.Api.Data;
 using PotholeDetection.Api.Middleware;
@@ -12,6 +13,12 @@ using PotholeDetection.Api.Hubs;
 using PotholeDetection.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var backendPort = builder.Configuration["BACKEND_PORT"];
+if (int.TryParse(backendPort, out var parsedBackendPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{parsedBackendPort}");
+}
 
 // ---------------------------------------------------------------------------
 // Configuration bindings
@@ -25,10 +32,21 @@ var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
 // ---------------------------------------------------------------------------
 // Database – PostgreSQL + PostGIS (NetTopologySuite)
 // ---------------------------------------------------------------------------
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("DefaultConnection is not configured");
+
+if (int.TryParse(builder.Configuration["DB_PORT"], out var parsedDbPort))
+{
+    var csb = new NpgsqlConnectionStringBuilder(connectionString);
+    if (csb.Host is "localhost" or "127.0.0.1")
+    {
+        csb.Port = parsedDbPort;
+        connectionString = csb.ConnectionString;
+    }
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.UseNetTopologySuite()));
+    options.UseNpgsql(connectionString, npgsql => npgsql.UseNetTopologySuite()));
 
 // ---------------------------------------------------------------------------
 // Authentication – JWT Bearer
@@ -62,9 +80,30 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Dashboard", policy =>
     {
-        policy.WithOrigins(
-                builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-                    ?? new[] { "http://localhost:5173", "http://localhost:3000" })
+        var origins = new HashSet<string>(
+            builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+                ?? Array.Empty<string>(),
+            StringComparer.OrdinalIgnoreCase);
+
+        var frontendOrigin = builder.Configuration["FRONTEND_ORIGIN"];
+        if (!string.IsNullOrWhiteSpace(frontendOrigin))
+        {
+            origins.Add(frontendOrigin);
+        }
+
+        if (int.TryParse(builder.Configuration["FRONTEND_PORT"], out var parsedFrontendPort))
+        {
+            origins.Add($"http://localhost:{parsedFrontendPort}");
+        }
+
+        if (origins.Count == 0)
+        {
+            origins.Add("http://localhost:5173");
+            origins.Add("http://localhost:4321");
+            origins.Add("http://localhost:3000");
+        }
+
+        policy.WithOrigins(origins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

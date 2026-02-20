@@ -8,7 +8,30 @@ public class LocalStorageService : IStorageService
     public LocalStorageService(IWebHostEnvironment env, IConfiguration config)
     {
         _env = env;
-        _baseUrl = config["Storage:PublicBaseUrl"] ?? "http://localhost:5073";
+
+        var explicitBaseUrl = config["Storage:PublicBaseUrl"];
+        if (!string.IsNullOrWhiteSpace(explicitBaseUrl))
+        {
+            _baseUrl = explicitBaseUrl;
+            return;
+        }
+
+        var urls = config["ASPNETCORE_URLS"];
+        if (!string.IsNullOrWhiteSpace(urls))
+        {
+            var firstUrl = urls
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(u => u.Replace("0.0.0.0", "localhost").Replace("+", "localhost"))
+                .FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(firstUrl))
+            {
+                _baseUrl = firstUrl;
+                return;
+            }
+        }
+
+        _baseUrl = "http://localhost:3000";
     }
 
     public async Task<string> UploadImageAsync(Stream imageStream, string vehicleId, string contentType = "image/jpeg")
