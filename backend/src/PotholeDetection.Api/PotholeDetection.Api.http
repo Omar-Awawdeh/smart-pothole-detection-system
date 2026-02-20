@@ -1,0 +1,6 @@
+@PotholeDetection.Api_HostAddress = http://localhost:5073
+
+GET {{PotholeDetection.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
