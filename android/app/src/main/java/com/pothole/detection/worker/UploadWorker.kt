@@ -1,6 +1,8 @@
 package com.pothole.detection.worker
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.pothole.detection.data.local.PendingUploadDao
@@ -15,7 +17,8 @@ class UploadWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val dao: PendingUploadDao,
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val sharedPreferences: SharedPreferences
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -27,6 +30,9 @@ class UploadWorker @AssistedInject constructor(
             dao.delete(pendingUpload)
             return Result.failure()
         }
+
+        val authResult = ensureAuthenticated()
+        if (authResult != null) return authResult
 
         val imageBytes = imageFile.readBytes()
         val result = apiService.uploadPothole(
@@ -44,6 +50,11 @@ class UploadWorker @AssistedInject constructor(
             Result.success()
         } else {
             val exception = result.exceptionOrNull()
+            if (exception?.message?.contains("401") == true) {
+                Log.w(TAG, "Got 401 after auth, retrying with fresh login")
+                apiService.clearAccessToken()
+                return Result.retry()
+            }
             if (isRetryableError(exception)) {
                 Result.retry()
             } else {
@@ -59,6 +70,27 @@ class UploadWorker @AssistedInject constructor(
         }
     }
 
+    private suspend fun ensureAuthenticated(): Result? {
+        if (apiService.hasAccessToken()) return null
+
+        val email = sharedPreferences.getString(KEY_AUTH_EMAIL, null)
+        val password = sharedPreferences.getString(KEY_AUTH_PASSWORD, null)
+
+        if (email.isNullOrBlank() || password.isNullOrBlank()) {
+            Log.e(TAG, "No auth credentials configured in settings — cannot upload")
+            return Result.failure()
+        }
+
+        val loginResult = apiService.login(email, password)
+        return if (loginResult.isSuccess) {
+            Log.d(TAG, "Authenticated successfully as $email")
+            null
+        } else {
+            Log.e(TAG, "Login failed: ${loginResult.exceptionOrNull()?.message}")
+            Result.failure()
+        }
+    }
+
     private fun isRetryableError(exception: Throwable?): Boolean {
         if (exception == null) return false
         val message = exception.message ?: return true
@@ -68,7 +100,10 @@ class UploadWorker @AssistedInject constructor(
     }
 
     companion object {
+        private const val TAG = "UploadWorker"
         const val KEY_UPLOAD_ID = "upload_id"
+        const val KEY_AUTH_EMAIL = "auth_email"
+        const val KEY_AUTH_PASSWORD = "auth_password"
         private const val MAX_RETRIES = 5
 
         fun buildWorkRequest(uploadId: String): OneTimeWorkRequest {

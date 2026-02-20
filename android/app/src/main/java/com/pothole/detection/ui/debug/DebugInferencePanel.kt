@@ -68,7 +68,18 @@ fun DebugInferencePanel(
                 enabled = !uiState.isRunning,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (uiState.isRunning) "RUNNING..." else "RUN INFERENCE")
+                Text(if (uiState.isRunning) "RUNNING..." else "RUN INFERENCE & UPLOAD")
+            }
+
+            if (uiState.testUploadStatus.isNotBlank()) {
+                Text(
+                    text = uiState.testUploadStatus,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (uiState.testUploadStatus.contains("queued"))
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             if (uiState.errorText.isNotBlank()) {

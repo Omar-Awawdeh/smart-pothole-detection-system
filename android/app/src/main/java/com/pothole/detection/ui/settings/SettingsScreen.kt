@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pothole.detection.ui.debug.DebugInferencePanel
@@ -99,6 +100,23 @@ fun SettingsScreen(
                         label = { Text("Vehicle ID") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.authEmail,
+                        onValueChange = viewModel::updateAuthEmail,
+                        label = { Text("Auth Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.authPassword,
+                        onValueChange = viewModel::updateAuthPassword,
+                        label = { Text("Auth Password") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation()
                     )
                 }
             }

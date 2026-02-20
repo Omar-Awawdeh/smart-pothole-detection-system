@@ -15,12 +15,16 @@ private const val KEY_CONFIDENCE_THRESHOLD = "confidence_threshold"
 private const val KEY_FRAME_SKIP_RATE = "frame_skip_rate"
 private const val KEY_API_BASE_URL = "api_base_url"
 private const val KEY_VEHICLE_ID = "vehicle_id"
+private const val KEY_AUTH_EMAIL = "auth_email"
+private const val KEY_AUTH_PASSWORD = "auth_password"
 
 data class SettingsUiState(
     val confidenceThreshold: Float = 0.5f,
     val frameSkipRate: Int = 2,
     val apiBaseUrl: String = "https://api.yoursite.com",
-    val vehicleId: String = ""
+    val vehicleId: String = "",
+    val authEmail: String = "",
+    val authPassword: String = ""
 )
 
 @HiltViewModel
@@ -41,7 +45,9 @@ class SettingsViewModel @Inject constructor(
             frameSkipRate = sharedPreferences.getInt(KEY_FRAME_SKIP_RATE, 2),
             apiBaseUrl = sharedPreferences.getString(KEY_API_BASE_URL, "https://api.yoursite.com")
                 ?: "https://api.yoursite.com",
-            vehicleId = sharedPreferences.getString(KEY_VEHICLE_ID, "") ?: ""
+            vehicleId = sharedPreferences.getString(KEY_VEHICLE_ID, "") ?: "",
+            authEmail = sharedPreferences.getString(KEY_AUTH_EMAIL, "") ?: "",
+            authPassword = sharedPreferences.getString(KEY_AUTH_PASSWORD, "") ?: ""
         )
     }
 
@@ -70,6 +76,20 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(vehicleId = value) }
         viewModelScope.launch {
             sharedPreferences.edit().putString(KEY_VEHICLE_ID, value).apply()
+        }
+    }
+
+    fun updateAuthEmail(value: String) {
+        _uiState.update { it.copy(authEmail = value) }
+        viewModelScope.launch {
+            sharedPreferences.edit().putString(KEY_AUTH_EMAIL, value).apply()
+        }
+    }
+
+    fun updateAuthPassword(value: String) {
+        _uiState.update { it.copy(authPassword = value) }
+        viewModelScope.launch {
+            sharedPreferences.edit().putString(KEY_AUTH_PASSWORD, value).apply()
         }
     }
 

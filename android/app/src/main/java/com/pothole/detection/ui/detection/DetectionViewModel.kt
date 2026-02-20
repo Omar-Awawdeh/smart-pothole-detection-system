@@ -1,5 +1,6 @@
 package com.pothole.detection.ui.detection
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.location.Location
@@ -8,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.pothole.detection.detection.DetectionResult
 import com.pothole.detection.domain.usecase.ProcessFrameUseCase
 import com.pothole.detection.location.LocationProvider
+import com.pothole.detection.worker.UploadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +43,8 @@ data class DetectionUiState(
 class DetectionViewModel @Inject constructor(
     private val processFrameUseCase: ProcessFrameUseCase,
     private val locationProvider: LocationProvider,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetectionUiState())
@@ -90,6 +94,10 @@ class DetectionViewModel @Inject constructor(
                     bitmap = bitmap,
                     confidenceThreshold = _uiState.value.confidenceThreshold
                 )
+
+                for (uploadId in result.queuedUploadIds) {
+                    UploadWorker.enqueue(appContext, uploadId)
+                }
 
                 _uiState.update { state ->
                     state.copy(

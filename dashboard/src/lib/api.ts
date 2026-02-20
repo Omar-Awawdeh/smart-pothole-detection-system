@@ -23,7 +23,7 @@ import type {
 } from './types';
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '',
+  baseURL: '',
 });
 
 // ── Token helpers ────────────────────────────────────

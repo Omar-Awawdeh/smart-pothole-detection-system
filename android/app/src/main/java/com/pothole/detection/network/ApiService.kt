@@ -48,6 +48,12 @@ class ApiService(private val baseUrl: String) {
         accessToken = token
     }
 
+    fun hasAccessToken(): Boolean = accessToken != null
+
+    fun clearAccessToken() {
+        accessToken = null
+    }
+
     suspend fun uploadPothole(
         imageBytes: ByteArray,
         latitude: Double,

@@ -2,6 +2,7 @@ using System.Text;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PotholeDetection.Api.Configuration;
@@ -71,10 +72,11 @@ builder.Services.AddCors(options =>
 });
 
 // ---------------------------------------------------------------------------
-// AWS S3 client
+// Image storage – S3 when configured, local file system otherwise
 // ---------------------------------------------------------------------------
 var s3Settings = builder.Configuration.GetSection("S3").Get<S3Settings>();
-if (s3Settings is not null && !string.IsNullOrEmpty(s3Settings.AccessKeyId))
+if (s3Settings is not null && !string.IsNullOrEmpty(s3Settings.AccessKeyId)
+    && !string.IsNullOrEmpty(s3Settings.BucketName))
 {
     builder.Services.AddSingleton<IAmazonS3>(_ =>
     {
@@ -83,18 +85,6 @@ if (s3Settings is not null && !string.IsNullOrEmpty(s3Settings.AccessKeyId))
             RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(s3Settings.Region)
         };
         return new AmazonS3Client(s3Settings.AccessKeyId, s3Settings.SecretAccessKey, config);
-    });
-}
-else
-{
-    builder.Services.AddSingleton<IAmazonS3>(_ =>
-    {
-        var region = s3Settings?.Region ?? "eu-central-1";
-        var config = new AmazonS3Config
-        {
-            RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(region)
-        };
-        return new AmazonS3Client(config);
     });
 }
 
@@ -106,7 +96,16 @@ builder.Services.AddScoped<IPotholeService, PotholeService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
-builder.Services.AddScoped<IStorageService, S3StorageService>();
+builder.Services.AddScoped<IStorageService>(sp =>
+{
+    var s3 = sp.GetService<IAmazonS3>();
+    if (s3 != null)
+        return new S3StorageService(s3, sp.GetRequiredService<IOptions<S3Settings>>());
+
+    return new LocalStorageService(
+        sp.GetRequiredService<IWebHostEnvironment>(),
+        sp.GetRequiredService<IConfiguration>());
+});
 
 // ---------------------------------------------------------------------------
 // Response compression (gzip for JSON/text — not images, they're already compressed)
@@ -178,6 +177,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.EnsureCreatedAsync();
     await DbSeeder.SeedAsync(db);
 }
 
@@ -186,6 +186,7 @@ using (var scope = app.Services.CreateScope())
 // ---------------------------------------------------------------------------
 app.UseResponseCompression();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
