@@ -67,7 +67,6 @@ External Service
 - `docker-compose.prod.yml`: production service wiring
 - `deploy/nginx.conf`: host reverse-proxy rules
 - `deploy/deploy.sh`: deployment automation script
-- `.github/workflows/deploy.yml`: automatic server deployment on push to `main`
 - `.env`: production runtime secrets and environment values (server only)
 - `.env.example`: template for required variables
 
@@ -98,29 +97,6 @@ Current DNS records used by production:
 - `A www` -> server public IP
 - `CNAME images` -> Cloudflare R2 custom-domain target
 
-## CI/CD (GitHub Actions)
-
-Deploys are automated from GitHub Actions using SSH to the VPS.
-
-- Trigger: push to `main`
-- Workflow file: `.github/workflows/deploy.yml`
-- Action steps:
-  1. SSH to server
-  2. Pull latest code in `/opt/pothole`
-  3. Rebuild and restart backend/dashboard containers
-  4. Reload NGINX config
-
-Required repository secrets:
-
-- `SERVER_HOST`
-- `SERVER_USER`
-- `SERVER_SSH_KEY`
-
-Server user requirements:
-
-- Can run Docker commands on `/opt/pothole`
-- Can update NGINX config and reload NGINX (directly or via passwordless `sudo`)
-
 ## Deployment Flow (High-Level)
 
 1. Provision VPS and install Docker, NGINX, and Certbot.
@@ -129,7 +105,6 @@ Server user requirements:
 4. Configure `.env` with secrets and domain values.
 5. Start stack with `docker-compose.prod.yml`.
 6. Verify dashboard and API health.
-7. Confirm GitHub Actions deploy workflow is green after push.
 
 ## Validation Checklist
 

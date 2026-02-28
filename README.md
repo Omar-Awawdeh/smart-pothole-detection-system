@@ -280,7 +280,6 @@ For detailed deployment instructions, see:
 - `docs/05-deployment.md` - Production deployment setup and structure
 - `docker-compose.prod.yml` - Production Docker configuration
 - `deploy/nginx.conf` - NGINX reverse proxy config
-- `.github/workflows/deploy.yml` - Auto-deploy workflow (push to `main`)
 
 **Live Demo**: https://potholesystem.tech
 
