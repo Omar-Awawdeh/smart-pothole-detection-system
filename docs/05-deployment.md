@@ -7,7 +7,9 @@ This is the single deployment document for the project discussion.
 The system is deployed on one Linux VPS using Docker Compose and NGINX.
 
 - `https://potholesystem.tech` serves the dashboard.
+- `https://www.potholesystem.tech` redirects to `https://potholesystem.tech`.
 - `https://api.potholesystem.tech` serves the backend API.
+- `https://images.potholesystem.tech` serves uploaded images from Cloudflare R2.
 - PostgreSQL + PostGIS runs in Docker for persistent data.
 - Image files are stored in S3-compatible object storage (Cloudflare R2 recommended).
 
@@ -23,6 +25,8 @@ NGINX (Host: 80/443, TLS via Let's Encrypt)
    |      - /        -> dashboard container
    |      - /api/*   -> backend container
    |      - /hubs/*  -> backend container (SignalR)
+   +--> www.potholesystem.tech
+   |      - 301 redirect -> potholesystem.tech
    |
    +--> api.potholesystem.tech
           - all paths -> backend container
@@ -33,7 +37,7 @@ Docker Compose Stack
    - postgres (PostgreSQL 16 + PostGIS 3.4)
 
 External Service
-   - S3-compatible object storage for uploaded images
+   - Cloudflare R2 bucket exposed at images.potholesystem.tech
 ```
 
 ## Runtime Components
@@ -63,6 +67,7 @@ External Service
 - `docker-compose.prod.yml`: production service wiring
 - `deploy/nginx.conf`: host reverse-proxy rules
 - `deploy/deploy.sh`: deployment automation script
+- `.github/workflows/deploy.yml`: automatic server deployment on push to `main`
 - `.env`: production runtime secrets and environment values (server only)
 - `.env.example`: template for required variables
 
@@ -78,11 +83,43 @@ External Service
 
 - `S3__AccessKeyId`
 - `S3__SecretAccessKey`
-- `S3__BucketName`
+- `S3__BucketName=potholes`
 - `S3__Region`
-- `S3__Endpoint`
-- `S3__PublicBaseUrl`
+- `S3__Endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
+- `S3__PublicBaseUrl=https://images.potholesystem.tech`
 - `S3__ForcePathStyle`
+
+## DNS Records
+
+Current DNS records used by production:
+
+- `A @` -> server public IP
+- `A api` -> server public IP
+- `A www` -> server public IP
+- `CNAME images` -> Cloudflare R2 custom-domain target
+
+## CI/CD (GitHub Actions)
+
+Deploys are automated from GitHub Actions using SSH to the VPS.
+
+- Trigger: push to `main`
+- Workflow file: `.github/workflows/deploy.yml`
+- Action steps:
+  1. SSH to server
+  2. Pull latest code in `/opt/pothole`
+  3. Rebuild and restart backend/dashboard containers
+  4. Reload NGINX config
+
+Required repository secrets:
+
+- `SERVER_HOST`
+- `SERVER_USER`
+- `SERVER_SSH_KEY`
+
+Server user requirements:
+
+- Can run Docker commands on `/opt/pothole`
+- Can update NGINX config and reload NGINX (directly or via passwordless `sudo`)
 
 ## Deployment Flow (High-Level)
 
@@ -92,15 +129,17 @@ External Service
 4. Configure `.env` with secrets and domain values.
 5. Start stack with `docker-compose.prod.yml`.
 6. Verify dashboard and API health.
+7. Confirm GitHub Actions deploy workflow is green after push.
 
 ## Validation Checklist
 
 - `https://api.potholesystem.tech/health` returns healthy.
 - `https://potholesystem.tech` loads the dashboard.
+- `https://www.potholesystem.tech` redirects to root domain.
 - Dashboard authentication works.
 - API requests from dashboard succeed.
 - Pothole records are written to PostgreSQL.
-- Uploaded images are saved to configured object storage (or local fallback).
+- Uploaded images are served from `https://images.potholesystem.tech/...`.
 
 ## Notes
 
