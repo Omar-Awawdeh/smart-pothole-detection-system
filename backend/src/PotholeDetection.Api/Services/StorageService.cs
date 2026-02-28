@@ -32,7 +32,9 @@ public class S3StorageService : IStorageService
             BucketName = _settings.BucketName,
             Key = key,
             InputStream = imageStream,
-            ContentType = contentType
+            ContentType = contentType,
+            DisablePayloadSigning = true,
+            DisableDefaultChecksumValidation = true
         };
 
         await _s3.PutObjectAsync(request);
