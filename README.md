@@ -277,7 +277,7 @@ cp .env.example .env
 ### Documentation
 
 For detailed deployment instructions, see:
-- `deploy/README.md` - Production deployment guide
+- `docs/05-deployment.md` - Production deployment setup and structure
 - `docker-compose.prod.yml` - Production Docker configuration
 - `deploy/nginx.conf` - NGINX reverse proxy config
 
