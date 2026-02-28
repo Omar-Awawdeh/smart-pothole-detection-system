@@ -1,0 +1,36 @@
+# Environment & Secrets
+.env
+.env.local
+.env.production
+*.key
+*.pem
+*.pfx
+
+# Development
+node_modules/
+bin/
+obj/
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Generated
+android/app/build/
+*.apk
+*.aab
+
+# Temporary
+tmp/
+temp/
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# OS
+Thumbs.db

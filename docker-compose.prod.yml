@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: pothole_detection
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pothole_detection"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - pothole-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=pothole_detection;Username=postgres;Password=${DB_PASSWORD}"
+      Jwt__Secret: ${JWT_SECRET}
+      Jwt__RefreshSecret: ${JWT_REFRESH_SECRET}
+      S3__AccessKeyId: ${S3__AccessKeyId}
+      S3__SecretAccessKey: ${S3__SecretAccessKey}
+      S3__BucketName: ${S3__BucketName:-smartpothole-images}
+      S3__Region: ${S3__Region:-auto}
+      Cors__Origins__0: ${FRONTEND_ORIGIN}
+      Storage__PublicBaseUrl: ${Storage__PublicBaseUrl}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - pothole-network
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "4321:5173"
+    environment:
+      VITE_API_URL: ${Storage__PublicBaseUrl}
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - pothole-network
+
+networks:
+  pothole-network:
+    driver: bridge
+
+volumes:
+  pgdata_prod:

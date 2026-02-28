@@ -249,6 +249,42 @@ Academic project - all rights reserved to the authors and institution.
 
 ---
 
+## Deployment
+
+The application is configured for easy VPS deployment using Docker Compose.
+
+### Quick Start
+
+```bash
+# Clone and setup
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git /opt/pothole
+cd /opt/pothole
+cp .env.example .env
+# Edit .env with your values
+
+# Deploy
+./deploy/deploy.sh
+```
+
+### Architecture
+
+- **Backend API**: .NET 8 with PostgreSQL + PostGIS
+- **Dashboard**: React + Vite
+- **Proxy**: NGINX with SSL (Let's Encrypt)
+- **Storage**: Local filesystem or Cloudflare R2
+- **Mobile**: Android app connects to API
+
+### Documentation
+
+For detailed deployment instructions, see:
+- `deploy/README.md` - Production deployment guide
+- `docker-compose.prod.yml` - Production Docker configuration
+- `deploy/nginx.conf` - NGINX reverse proxy config
+
+**Live Demo**: https://potholesystem.tech
+
+---
+
 ## Acknowledgments
 
 - **Datasets**: Roboflow Community, Kaggle Contributors
