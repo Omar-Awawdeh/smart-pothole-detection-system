@@ -1,5 +1,6 @@
 package com.pothole.detection.network
 
+import android.content.SharedPreferences
 import com.pothole.detection.network.models.LoginRequest
 import com.pothole.detection.network.models.LoginResponse
 import com.pothole.detection.network.models.PotholeResponse
@@ -23,7 +24,7 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class ApiService(private val baseUrl: String) {
+class ApiService(private val sharedPreferences: SharedPreferences) {
     private val client = HttpClient(Android) {
         install(ContentNegotiation) {
             json(
@@ -43,6 +44,22 @@ class ApiService(private val baseUrl: String) {
     }
 
     private var accessToken: String? = null
+
+    private fun baseUrl(): String {
+        val configured = sharedPreferences.getString(KEY_API_BASE_URL, DEFAULT_API_BASE_URL)
+            ?.trim()
+            .orEmpty()
+
+        if (configured.isBlank()) return DEFAULT_API_BASE_URL
+
+        val withScheme = if (configured.startsWith("http://") || configured.startsWith("https://")) {
+            configured
+        } else {
+            "https://$configured"
+        }
+
+        return withScheme.trimEnd('/')
+    }
 
     fun setAccessToken(token: String) {
         accessToken = token
@@ -64,7 +81,7 @@ class ApiService(private val baseUrl: String) {
     ): Result<PotholeResponse> {
         return try {
             val response = client.submitFormWithBinaryData(
-                url = "$baseUrl/api/potholes",
+                url = "${baseUrl()}/api/potholes",
                 formData = formData {
                     append("image", imageBytes, Headers.build {
                         append(HttpHeaders.ContentType, "image/jpeg")
@@ -95,7 +112,7 @@ class ApiService(private val baseUrl: String) {
 
     suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
-            val response = client.post("$baseUrl/api/auth/login") {
+            val response = client.post("${baseUrl()}/api/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequest(email, password))
             }
@@ -110,5 +127,10 @@ class ApiService(private val baseUrl: String) {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private const val KEY_API_BASE_URL = "api_base_url"
+        private const val DEFAULT_API_BASE_URL = "https://api.potholesystem.tech"
     }
 }

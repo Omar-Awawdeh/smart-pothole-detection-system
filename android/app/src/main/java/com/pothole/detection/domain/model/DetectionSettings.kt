@@ -6,5 +6,5 @@ data class DetectionSettings(
     val dedupRadiusMeters: Double = 10.0,
     val dedupTimeWindowMs: Long = 60_000L,
     val imageQuality: Int = 85,
-    val apiBaseUrl: String = "https://api.yoursite.com"
+    val apiBaseUrl: String = "https://api.potholesystem.tech"
 )
