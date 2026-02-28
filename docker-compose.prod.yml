@@ -37,6 +37,9 @@ services:
       S3__SecretAccessKey: ${S3__SecretAccessKey}
       S3__BucketName: ${S3__BucketName:-smartpothole-images}
       S3__Region: ${S3__Region:-auto}
+      S3__Endpoint: ${S3__Endpoint}
+      S3__PublicBaseUrl: ${S3__PublicBaseUrl}
+      S3__ForcePathStyle: ${S3__ForcePathStyle:-true}
       Cors__Origins__0: ${FRONTEND_ORIGIN}
       Cors__Origins__1: https://www.potholesystem.tech
       Storage__PublicBaseUrl: ${Storage__PublicBaseUrl}

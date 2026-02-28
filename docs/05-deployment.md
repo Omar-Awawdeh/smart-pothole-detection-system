@@ -80,6 +80,9 @@ External Service
 - `S3__SecretAccessKey`
 - `S3__BucketName`
 - `S3__Region`
+- `S3__Endpoint`
+- `S3__PublicBaseUrl`
+- `S3__ForcePathStyle`
 
 ## Deployment Flow (High-Level)
 
