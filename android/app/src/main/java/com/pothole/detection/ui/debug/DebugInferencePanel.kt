@@ -63,6 +63,16 @@ fun DebugInferencePanel(
                 valueRange = 0.01f..1.0f
             )
 
+            Text(
+                text = "NMS Threshold: ${(uiState.nmsThreshold * 100).roundToInt()}%",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Slider(
+                value = uiState.nmsThreshold,
+                onValueChange = viewModel::updateNmsThreshold,
+                valueRange = 0.01f..1.0f
+            )
+
             Button(
                 onClick = viewModel::runOnce,
                 enabled = !uiState.isRunning,
@@ -116,6 +126,7 @@ fun DebugInferencePanel(
                         detections = uiState.detections,
                         imageWidth = bitmap.width,
                         imageHeight = bitmap.height,
+                        matchPreviewCrop = false,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

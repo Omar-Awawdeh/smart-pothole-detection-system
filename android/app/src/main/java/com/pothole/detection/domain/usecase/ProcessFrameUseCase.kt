@@ -29,15 +29,24 @@ class ProcessFrameUseCase @Inject constructor(
         val reportedCount: Int,
         val queuedUploadIds: List<String>,
         val location: Location?,
+        val preprocessTimeMs: Long,
         val inferenceTimeMs: Long,
+        val postprocessTimeMs: Long,
+        val totalTimeMs: Long,
         val maxConfidence: Float,
         val candidatesAboveThreshold: Int,
         val keptAfterNms: Int,
+        val confidenceThreshold: Float,
+        val nmsThreshold: Float,
         val delegate: String
     )
 
-    suspend fun execute(bitmap: Bitmap, confidenceThreshold: Float = 0.5f): ProcessResult {
-        val debugResult = detector.detectWithDebug(bitmap, confidenceThreshold)
+    suspend fun execute(
+        bitmap: Bitmap,
+        confidenceThreshold: Float = 0.5f,
+        nmsThreshold: Float = 0.5f
+    ): ProcessResult {
+        val debugResult = detector.detectWithDebug(bitmap, confidenceThreshold, nmsThreshold)
         val detections = debugResult.detections
         val location = locationProvider.getLastLocation()
         var reportedCount = 0
@@ -74,10 +83,15 @@ class ProcessFrameUseCase @Inject constructor(
             reportedCount = reportedCount,
             queuedUploadIds = queuedUploadIds,
             location = location,
+            preprocessTimeMs = debugResult.debugInfo.preprocessTimeMs,
             inferenceTimeMs = inferenceTime,
+            postprocessTimeMs = debugResult.debugInfo.postprocessTimeMs,
+            totalTimeMs = debugResult.debugInfo.totalTimeMs,
             maxConfidence = debugResult.debugInfo.maxConfidence,
             candidatesAboveThreshold = debugResult.debugInfo.candidatesAboveThreshold,
             keptAfterNms = debugResult.debugInfo.keptAfterNms,
+            confidenceThreshold = debugResult.debugInfo.confidenceThreshold,
+            nmsThreshold = debugResult.debugInfo.nmsThreshold,
             delegate = debugResult.debugInfo.delegate
         )
     }

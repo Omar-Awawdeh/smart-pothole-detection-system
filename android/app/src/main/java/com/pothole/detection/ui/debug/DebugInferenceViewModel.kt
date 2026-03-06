@@ -27,6 +27,7 @@ import javax.inject.Inject
 data class DebugInferenceUiState(
     val assetPath: String = "debug_frames/frame_01.jpg",
     val confidenceThreshold: Float = 0.5f,
+    val nmsThreshold: Float = 0.5f,
     val isRunning: Boolean = false,
     val bitmap: Bitmap? = null,
     val detections: List<DetectionResult> = emptyList(),
@@ -53,6 +54,10 @@ class DebugInferenceViewModel @Inject constructor(
         _uiState.update { it.copy(confidenceThreshold = value, errorText = "") }
     }
 
+    fun updateNmsThreshold(value: Float) {
+        _uiState.update { it.copy(nmsThreshold = value, errorText = "") }
+    }
+
     fun runOnce() {
         val current = _uiState.value
         if (current.isRunning) return
@@ -66,7 +71,8 @@ class DebugInferenceViewModel @Inject constructor(
 
                 val result = detector.detectWithDebug(
                     bitmap = bitmap,
-                    confidenceThreshold = current.confidenceThreshold
+                    confidenceThreshold = current.confidenceThreshold,
+                    nmsThreshold = current.nmsThreshold
                 )
 
                 val info = result.debugInfo
@@ -82,6 +88,9 @@ class DebugInferenceViewModel @Inject constructor(
                     append("threshold=")
                     append(current.confidenceThreshold)
                     append("\n")
+                    append("nms=")
+                    append(current.nmsThreshold)
+                    append("\n")
                     append("maxConf=")
                     append(info.maxConfidence)
                     append(" idx=")
@@ -95,8 +104,21 @@ class DebugInferenceViewModel @Inject constructor(
                     append("delegate=")
                     append(info.delegate)
                     append("\n")
-                    append("inferenceMs=")
+                    append("preprocessMs=")
+                    append(info.preprocessTimeMs)
+                    append(" inferenceMs=")
                     append(info.inferenceTimeMs)
+                    append(" postprocessMs=")
+                    append(info.postprocessTimeMs)
+                    append(" totalMs=")
+                    append(info.totalTimeMs)
+                    append("\n")
+                    append("letterboxScale=")
+                    append(info.letterboxScale)
+                    append(" padX=")
+                    append(info.letterboxPadX)
+                    append(" padY=")
+                    append(info.letterboxPadY)
                 }
 
                 _uiState.update {

@@ -99,6 +99,7 @@ fun DetectionScreen(
                 detections = state.recentDetections,
                 imageWidth = state.lastFrameWidth,
                 imageHeight = state.lastFrameHeight,
+                matchPreviewCrop = true,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -112,11 +113,18 @@ fun DetectionScreen(
             StatsCard(
                 location = state.currentLocation,
                 detectionsToday = state.detectionsToday,
+                preprocessTimeMs = state.preprocessTimeMs,
                 inferenceTimeMs = state.inferenceTimeMs,
+                postprocessTimeMs = state.postprocessTimeMs,
+                totalTimeMs = state.totalTimeMs,
                 pendingUploads = state.pendingUploads,
                 maxConfidence = state.maxConfidence,
                 candidatesAboveThreshold = state.candidatesAboveThreshold,
                 keptAfterNms = state.keptAfterNms,
+                confidenceThreshold = state.confidenceThreshold,
+                nmsThreshold = state.nmsThreshold,
+                droppedFrames = state.droppedFrames,
+                processedFrames = state.processedFrames,
                 delegate = state.delegate
             )
 
