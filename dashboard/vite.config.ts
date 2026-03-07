@@ -16,6 +16,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: frontendPort,
+    allowedHosts: ['potholesystem.tech', 'api.potholesystem.tech'],
     proxy: {
       '/api': {
         target: process.env.API_PROXY_TARGET || `http://localhost:${backendPort}`,

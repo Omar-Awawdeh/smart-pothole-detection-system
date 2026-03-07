@@ -65,6 +65,16 @@ fun SettingsScreen(
                     )
 
                     Text(
+                        text = "NMS Threshold: ${(uiState.nmsThreshold * 100).roundToInt()}%",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Slider(
+                        value = uiState.nmsThreshold,
+                        onValueChange = viewModel::updateNmsThreshold,
+                        valueRange = 0.1f..1.0f
+                    )
+
+                    Text(
                         text = "Frame Skip Rate: ${uiState.frameSkipRate}",
                         style = MaterialTheme.typography.bodyMedium
                     )

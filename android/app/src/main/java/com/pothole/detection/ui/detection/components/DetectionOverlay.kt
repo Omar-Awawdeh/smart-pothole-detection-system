@@ -18,20 +18,32 @@ fun DetectionOverlay(
     detections: List<DetectionResult>,
     imageWidth: Int,
     imageHeight: Int,
+    matchPreviewCrop: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
 
     Canvas(modifier = modifier) {
-        val scaleX = size.width / imageWidth.toFloat()
-        val scaleY = size.height / imageHeight.toFloat()
+        val imageWidthFloat = imageWidth.toFloat().coerceAtLeast(1f)
+        val imageHeightFloat = imageHeight.toFloat().coerceAtLeast(1f)
+        val widthScale = size.width / imageWidthFloat
+        val heightScale = size.height / imageHeightFloat
+        val scale = if (matchPreviewCrop) {
+            maxOf(widthScale, heightScale)
+        } else {
+            minOf(widthScale, heightScale)
+        }
+        val renderedWidth = imageWidthFloat * scale
+        val renderedHeight = imageHeightFloat * scale
+        val offsetX = (size.width - renderedWidth) / 2f
+        val offsetY = (size.height - renderedHeight) / 2f
 
         for (detection in detections) {
             val box = detection.boundingBox
-            val left = box.left * scaleX
-            val top = box.top * scaleY
-            val width = box.width() * scaleX
-            val height = box.height() * scaleY
+            val left = offsetX + (box.left * scale)
+            val top = offsetY + (box.top * scale)
+            val width = box.width() * scale
+            val height = box.height() * scale
 
             drawRect(
                 color = Color.Red,

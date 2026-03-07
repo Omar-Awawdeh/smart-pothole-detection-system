@@ -19,11 +19,18 @@ import androidx.compose.ui.unit.dp
 fun StatsCard(
     location: Location?,
     detectionsToday: Int,
+    preprocessTimeMs: Long,
     inferenceTimeMs: Long,
+    postprocessTimeMs: Long,
+    totalTimeMs: Long,
     pendingUploads: Int,
     maxConfidence: Float,
     candidatesAboveThreshold: Int,
     keptAfterNms: Int,
+    confidenceThreshold: Float,
+    nmsThreshold: Float,
+    droppedFrames: Int,
+    processedFrames: Int,
     delegate: String,
     modifier: Modifier = Modifier
 ) {
@@ -59,7 +66,7 @@ fun StatsCard(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Inference: ${inferenceTimeMs}ms",
+                    text = "Total: ${totalTimeMs}ms",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -71,7 +78,20 @@ fun StatsCard(
 
             if (BuildConfig.DEBUG) {
                 Text(
-                    text = "maxConf=%.3f cand=%d kept=%d %s".format(
+                    text = "prep=%d infer=%d post=%d drop=%d proc=%d".format(
+                        preprocessTimeMs,
+                        inferenceTimeMs,
+                        postprocessTimeMs,
+                        droppedFrames,
+                        processedFrames
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "conf=%.2f nms=%.2f max=%.3f cand=%d kept=%d %s".format(
+                        confidenceThreshold,
+                        nmsThreshold,
                         maxConfidence,
                         candidatesAboveThreshold,
                         keptAfterNms,

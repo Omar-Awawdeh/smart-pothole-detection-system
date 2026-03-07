@@ -28,13 +28,19 @@ data class DetectionUiState(
     val lastFrameHeight: Int = 1,
     val detectionsToday: Int = 0,
     val pendingUploads: Int = 0,
+    val preprocessTimeMs: Long = 0,
     val inferenceTimeMs: Long = 0,
+    val postprocessTimeMs: Long = 0,
+    val totalTimeMs: Long = 0,
     val maxConfidence: Float = 0f,
     val candidatesAboveThreshold: Int = 0,
     val keptAfterNms: Int = 0,
     val delegate: String = "",
     val confidenceThreshold: Float = 0.5f,
+    val nmsThreshold: Float = 0.5f,
     val frameSkipRate: Int = 2,
+    val droppedFrames: Int = 0,
+    val processedFrames: Int = 0,
     val cameraPermissionGranted: Boolean = false,
     val locationPermissionGranted: Boolean = false
 )
@@ -51,6 +57,7 @@ class DetectionViewModel @Inject constructor(
     val uiState: StateFlow<DetectionUiState> = _uiState.asStateFlow()
 
     private var isProcessingFrame = false
+    private var pendingFrame: Bitmap? = null
 
     init {
         loadPreferences()
@@ -58,10 +65,12 @@ class DetectionViewModel @Inject constructor(
 
     private fun loadPreferences() {
         val confidence = sharedPreferences.getFloat(PREF_CONFIDENCE_THRESHOLD, 0.5f)
+        val nmsThreshold = sharedPreferences.getFloat(PREF_NMS_THRESHOLD, 0.5f)
         val frameSkip = sharedPreferences.getInt(PREF_FRAME_SKIP_RATE, 2)
         _uiState.update {
             it.copy(
                 confidenceThreshold = confidence.coerceIn(0.01f, 1.0f),
+                nmsThreshold = nmsThreshold.coerceIn(0.01f, 1.0f),
                 frameSkipRate = frameSkip.coerceIn(1, 10)
             )
         }
@@ -81,18 +90,29 @@ class DetectionViewModel @Inject constructor(
 
     fun stopDetection() {
         locationProvider.stopLocationUpdates()
+        pendingFrame = null
+        isProcessingFrame = false
         _uiState.update { it.copy(isDetecting = false, recentDetections = emptyList()) }
     }
 
     fun processFrame(bitmap: Bitmap) {
-        if (isProcessingFrame) return
-        isProcessingFrame = true
+        if (isProcessingFrame) {
+            pendingFrame = bitmap
+            _uiState.update { it.copy(droppedFrames = it.droppedFrames + 1) }
+            return
+        }
 
+        processBitmapInternal(bitmap)
+    }
+
+    private fun processBitmapInternal(bitmap: Bitmap) {
+        isProcessingFrame = true
         viewModelScope.launch(Dispatchers.Default) {
             try {
                 val result = processFrameUseCase.execute(
                     bitmap = bitmap,
-                    confidenceThreshold = _uiState.value.confidenceThreshold
+                    confidenceThreshold = _uiState.value.confidenceThreshold,
+                    nmsThreshold = _uiState.value.nmsThreshold
                 )
 
                 for (uploadId in result.queuedUploadIds) {
@@ -104,17 +124,28 @@ class DetectionViewModel @Inject constructor(
                         recentDetections = result.detections,
                         lastFrameWidth = bitmap.width,
                         lastFrameHeight = bitmap.height,
+                        preprocessTimeMs = result.preprocessTimeMs,
                         inferenceTimeMs = result.inferenceTimeMs,
+                        postprocessTimeMs = result.postprocessTimeMs,
+                        totalTimeMs = result.totalTimeMs,
                         maxConfidence = result.maxConfidence,
                         candidatesAboveThreshold = result.candidatesAboveThreshold,
                         keptAfterNms = result.keptAfterNms,
                         delegate = result.delegate,
+                        confidenceThreshold = result.confidenceThreshold,
+                        nmsThreshold = result.nmsThreshold,
                         currentLocation = result.location ?: state.currentLocation,
-                        detectionsToday = state.detectionsToday + result.reportedCount
+                        detectionsToday = state.detectionsToday + result.reportedCount,
+                        processedFrames = state.processedFrames + 1
                     )
                 }
             } finally {
                 isProcessingFrame = false
+                val queuedFrame = pendingFrame
+                pendingFrame = null
+                if (_uiState.value.isDetecting && queuedFrame != null) {
+                    processBitmapInternal(queuedFrame)
+                }
             }
         }
     }
@@ -134,6 +165,7 @@ class DetectionViewModel @Inject constructor(
 
     companion object {
         private const val PREF_CONFIDENCE_THRESHOLD = "confidence_threshold"
+        private const val PREF_NMS_THRESHOLD = "nms_threshold"
         private const val PREF_FRAME_SKIP_RATE = "frame_skip_rate"
     }
 }

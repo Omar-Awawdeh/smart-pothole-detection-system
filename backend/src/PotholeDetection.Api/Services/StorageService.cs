@@ -32,10 +32,22 @@ public class S3StorageService : IStorageService
             BucketName = _settings.BucketName,
             Key = key,
             InputStream = imageStream,
-            ContentType = contentType
+            ContentType = contentType,
+            DisablePayloadSigning = true,
+            DisableDefaultChecksumValidation = true
         };
 
         await _s3.PutObjectAsync(request);
+
+        if (!string.IsNullOrWhiteSpace(_settings.PublicBaseUrl))
+        {
+            return $"{_settings.PublicBaseUrl.TrimEnd('/')}/{key}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(_settings.Endpoint))
+        {
+            return $"{_settings.Endpoint.TrimEnd('/')}/{_settings.BucketName}/{key}";
+        }
 
         return $"https://{_settings.BucketName}.s3.{_settings.Region}.amazonaws.com/{key}";
     }

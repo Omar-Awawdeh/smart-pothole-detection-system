@@ -58,9 +58,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApiService(sharedPreferences: SharedPreferences): ApiService {
-        val baseUrl = sharedPreferences.getString("api_base_url", "https://api.yoursite.com")
-            ?: "https://api.yoursite.com"
-        return ApiService(baseUrl)
+        return ApiService(sharedPreferences)
     }
 
     @Provides

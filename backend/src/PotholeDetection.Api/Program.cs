@@ -119,10 +119,19 @@ if (s3Settings is not null && !string.IsNullOrEmpty(s3Settings.AccessKeyId)
 {
     builder.Services.AddSingleton<IAmazonS3>(_ =>
     {
-        var config = new AmazonS3Config
+        var config = new AmazonS3Config();
+
+        if (!string.IsNullOrWhiteSpace(s3Settings.Endpoint))
         {
-            RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(s3Settings.Region)
-        };
+            config.ServiceURL = s3Settings.Endpoint;
+            config.ForcePathStyle = true;
+            config.AuthenticationRegion = string.IsNullOrWhiteSpace(s3Settings.Region) ? "auto" : s3Settings.Region;
+        }
+        else
+        {
+            config.RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(s3Settings.Region);
+        }
+
         return new AmazonS3Client(s3Settings.AccessKeyId, s3Settings.SecretAccessKey, config);
     });
 }
