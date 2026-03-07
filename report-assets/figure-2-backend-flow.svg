@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Backend request lifecycle and persistence flow">
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #111827; }
+      .label { font: 700 17px Arial, sans-serif; fill: #0f172a; }
+      .text { font: 13.5px Arial, sans-serif; fill: #1f2937; }
+      .card { fill: #ffffff; stroke: #334155; stroke-width: 1.8; rx: 12; }
+      .soft { fill: #eff6ff; stroke: #93c5fd; stroke-width: 1.4; rx: 10; }
+      .db { fill: #f8fafc; stroke: #475569; stroke-width: 1.6; rx: 12; }
+      .arrow { stroke: #0284c7; stroke-width: 2.8; fill: none; marker-end: url(#a); }
+    </style>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#0284c7"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="760" fill="#ffffff"/>
+  <text x="600" y="46" text-anchor="middle" class="title">Figure 2: API and Database Processing Flow</text>
+
+  <rect x="60" y="90" width="310" height="600" class="card"/>
+  <text x="215" y="124" text-anchor="middle" class="label">Input and Controllers</text>
+  <rect x="90" y="150" width="250" height="72" class="soft"/>
+  <text x="215" y="180" text-anchor="middle" class="text">POST /api/potholes (multipart)</text>
+  <text x="215" y="200" text-anchor="middle" class="text">vehicleId, lat, lng, confidence, image</text>
+  <rect x="90" y="236" width="250" height="56" class="soft"/>
+  <text x="215" y="269" text-anchor="middle" class="text">JWT Auth + Role Authorization</text>
+  <rect x="90" y="306" width="250" height="56" class="soft"/>
+  <text x="215" y="339" text-anchor="middle" class="text">Validation and Error Middleware</text>
+  <rect x="90" y="376" width="250" height="56" class="soft"/>
+  <text x="215" y="409" text-anchor="middle" class="text">PotholeService.CreateAsync</text>
+
+  <rect x="445" y="90" width="330" height="600" class="card"/>
+  <text x="610" y="124" text-anchor="middle" class="label">Business Logic</text>
+  <rect x="475" y="150" width="270" height="64" class="soft"/>
+  <text x="610" y="178" text-anchor="middle" class="text">Point(longitude, latitude), SRID 4326</text>
+  <text x="610" y="198" text-anchor="middle" class="text">detectedAt from timestamp</text>
+  <rect x="475" y="228" width="270" height="64" class="soft"/>
+  <text x="610" y="256" text-anchor="middle" class="text">Dedup Query (distance &lt;= 15m)</text>
+  <text x="610" y="276" text-anchor="middle" class="text">exclude repaired / false_positive</text>
+  <rect x="475" y="306" width="270" height="64" class="soft"/>
+  <text x="610" y="334" text-anchor="middle" class="text">Duplicate: confirmation_count++</text>
+  <text x="610" y="354" text-anchor="middle" class="text">updated_at = now()</text>
+  <rect x="475" y="384" width="270" height="64" class="soft"/>
+  <text x="610" y="412" text-anchor="middle" class="text">New: upload image (S3/local)</text>
+  <text x="610" y="432" text-anchor="middle" class="text">calculate severity + insert pothole</text>
+  <rect x="475" y="462" width="270" height="64" class="soft"/>
+  <text x="610" y="490" text-anchor="middle" class="text">Update vehicle last_active_at</text>
+  <text x="610" y="510" text-anchor="middle" class="text">Publish SignalR NewPothole event</text>
+
+  <rect x="850" y="90" width="300" height="600" class="card"/>
+  <text x="1000" y="124" text-anchor="middle" class="label">Persistence and Read APIs</text>
+  <rect x="880" y="150" width="240" height="110" class="db"/>
+  <text x="1000" y="180" text-anchor="middle" class="text">PostgreSQL + PostGIS</text>
+  <text x="1000" y="204" text-anchor="middle" class="text">users, vehicles, potholes</text>
+  <text x="1000" y="228" text-anchor="middle" class="text">geography(Point, 4326)</text>
+
+  <rect x="880" y="280" width="240" height="64" class="soft"/>
+  <text x="1000" y="317" text-anchor="middle" class="text">GET /api/potholes (+ filters)</text>
+  <rect x="880" y="356" width="240" height="64" class="soft"/>
+  <text x="1000" y="393" text-anchor="middle" class="text">PATCH /api/potholes/{id}</text>
+  <rect x="880" y="432" width="240" height="64" class="soft"/>
+  <text x="1000" y="469" text-anchor="middle" class="text">POST /api/potholes/bulk</text>
+  <rect x="880" y="508" width="240" height="64" class="soft"/>
+  <text x="1000" y="545" text-anchor="middle" class="text">GET /api/stats/* and export CSV</text>
+
+  <path d="M340 410 L475 410" class="arrow"/>
+  <path d="M745 208 L880 208" class="arrow"/>
+  <path d="M745 490 L880 490" class="arrow"/>
+  <path d="M880 320 L745 320" class="arrow"/>
+
+  <text x="607" y="712" text-anchor="middle" class="text">Implemented stack reflected from backend source, service logic, and migration schema.</text>
+</svg>

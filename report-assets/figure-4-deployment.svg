@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Docker-based deployment topology">
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .h { font: 700 17px Arial, sans-serif; fill: #1e293b; }
+      .t { font: 13px Arial, sans-serif; fill: #1f2937; }
+      .card { fill: #ffffff; stroke: #334155; stroke-width: 1.8; rx: 12; }
+      .soft { fill: #eff6ff; stroke: #93c5fd; stroke-width: 1.2; rx: 9; }
+      .arrow { stroke: #0284c7; stroke-width: 2.6; fill: none; marker-end: url(#arr); }
+    </style>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#0284c7"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="760" fill="#fff"/>
+  <text x="600" y="44" text-anchor="middle" class="title">Figure 4: Local Deployment Topology (Docker Compose)</text>
+
+  <rect x="65" y="92" width="1070" height="590" class="card"/>
+  <text x="600" y="122" text-anchor="middle" class="h">Host Machine</text>
+
+  <rect x="100" y="145" width="1000" height="500" class="soft"/>
+  <text x="600" y="172" text-anchor="middle" class="h">Docker Network</text>
+
+  <rect x="150" y="205" width="280" height="210" class="card"/>
+  <text x="290" y="234" text-anchor="middle" class="h">dashboard container</text>
+  <text x="290" y="260" text-anchor="middle" class="t">React + Vite</text>
+  <text x="290" y="282" text-anchor="middle" class="t">Container port: 5173</text>
+  <text x="290" y="304" text-anchor="middle" class="t">Host port: ${FRONTEND_PORT:-4321}</text>
+  <text x="290" y="326" text-anchor="middle" class="t">API proxy target: backend:8080</text>
+
+  <rect x="460" y="205" width="280" height="250" class="card"/>
+  <text x="600" y="234" text-anchor="middle" class="h">backend container</text>
+  <text x="600" y="260" text-anchor="middle" class="t">ASP.NET Core 8 API</text>
+  <text x="600" y="282" text-anchor="middle" class="t">Container port: 8080</text>
+  <text x="600" y="304" text-anchor="middle" class="t">Host port: ${BACKEND_PORT:-3000}</text>
+  <text x="600" y="326" text-anchor="middle" class="t">Maps /api/*, /hubs/potholes, /health</text>
+  <text x="600" y="348" text-anchor="middle" class="t">Mount: /app/wwwroot/uploads</text>
+  <text x="600" y="370" text-anchor="middle" class="t">Depends on postgres health</text>
+
+  <rect x="770" y="205" width="280" height="250" class="card"/>
+  <text x="910" y="234" text-anchor="middle" class="h">postgres container</text>
+  <text x="910" y="260" text-anchor="middle" class="t">postgis/postgis:16-3.4</text>
+  <text x="910" y="282" text-anchor="middle" class="t">DB: pothole_detection</text>
+  <text x="910" y="304" text-anchor="middle" class="t">Container port: 5432</text>
+  <text x="910" y="326" text-anchor="middle" class="t">Host port: ${DB_PORT:-5432}</text>
+  <text x="910" y="348" text-anchor="middle" class="t">Volume: pgdata_v2</text>
+  <text x="910" y="370" text-anchor="middle" class="t">Healthcheck: pg_isready</text>
+
+  <rect x="220" y="492" width="760" height="120" class="card"/>
+  <text x="600" y="520" text-anchor="middle" class="h">Optional External Services</text>
+  <text x="600" y="548" text-anchor="middle" class="t">AWS S3 (image storage in production-like setups)</text>
+  <text x="600" y="570" text-anchor="middle" class="t">Fallback mode: local uploads via backend public base URL</text>
+
+  <path d="M430 308 L460 308" class="arrow"/>
+  <path d="M740 308 L770 308" class="arrow"/>
+  <path d="M600 455 L600 492" class="arrow"/>
+</svg>

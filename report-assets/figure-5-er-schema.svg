@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-label="Database ER schema">
+  <defs>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #111827; }
+      .h { font: 700 16px Arial, sans-serif; fill: #0f172a; }
+      .t { font: 12.5px Arial, sans-serif; fill: #1f2937; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 1.8; rx: 10; }
+      .head { fill: #e2e8f0; }
+      .arrow { stroke: #0ea5e9; stroke-width: 2.6; fill: none; marker-end: url(#arr); }
+    </style>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#0ea5e9"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="760" fill="#fff"/>
+  <text x="600" y="44" text-anchor="middle" class="title">Figure 5: Implemented Database ER View</text>
+
+  <g transform="translate(90,120)">
+    <rect x="0" y="0" width="300" height="380" class="box"/>
+    <rect x="0" y="0" width="300" height="42" class="head"/>
+    <text x="150" y="27" text-anchor="middle" class="h">users</text>
+    <text x="16" y="68" class="t">PK id (uuid)</text>
+    <text x="16" y="92" class="t">email (unique)</text>
+    <text x="16" y="116" class="t">password_hash</text>
+    <text x="16" y="140" class="t">name</text>
+    <text x="16" y="164" class="t">role (admin/operator/viewer)</text>
+    <text x="16" y="188" class="t">created_at</text>
+    <text x="16" y="212" class="t">updated_at</text>
+    <text x="16" y="254" class="t">Note: no FK to vehicles in current schema</text>
+  </g>
+
+  <g transform="translate(450,120)">
+    <rect x="0" y="0" width="300" height="380" class="box"/>
+    <rect x="0" y="0" width="300" height="42" class="head"/>
+    <text x="150" y="27" text-anchor="middle" class="h">vehicles</text>
+    <text x="16" y="68" class="t">PK id (uuid)</text>
+    <text x="16" y="92" class="t">name</text>
+    <text x="16" y="116" class="t">serial_number (unique)</text>
+    <text x="16" y="140" class="t">is_active</text>
+    <text x="16" y="164" class="t">last_active_at</text>
+    <text x="16" y="188" class="t">created_at</text>
+  </g>
+
+  <g transform="translate(810,120)">
+    <rect x="0" y="0" width="300" height="500" class="box"/>
+    <rect x="0" y="0" width="300" height="42" class="head"/>
+    <text x="150" y="27" text-anchor="middle" class="h">potholes</text>
+    <text x="16" y="68" class="t">PK id (uuid)</text>
+    <text x="16" y="92" class="t">FK vehicle_id -> vehicles.id</text>
+    <text x="16" y="116" class="t">latitude, longitude</text>
+    <text x="16" y="140" class="t">location geography(Point,4326)</text>
+    <text x="16" y="164" class="t">confidence</text>
+    <text x="16" y="188" class="t">image_url</text>
+    <text x="16" y="212" class="t">status (unverified/verified/repaired/false_positive)</text>
+    <text x="16" y="236" class="t">severity (low/medium/high)</text>
+    <text x="16" y="260" class="t">confirmation_count</text>
+    <text x="16" y="284" class="t">detected_at</text>
+    <text x="16" y="308" class="t">repaired_at</text>
+    <text x="16" y="332" class="t">created_at</text>
+    <text x="16" y="356" class="t">updated_at</text>
+    <text x="16" y="398" class="t">Indexes: status, detected_at(desc), vehicle_id</text>
+    <text x="16" y="422" class="t">PostGIS extension enabled</text>
+  </g>
+
+  <path d="M750 300 L810 300" class="arrow"/>
+  <text x="780" y="290" text-anchor="middle" class="t">1 - * relation</text>
+</svg>
