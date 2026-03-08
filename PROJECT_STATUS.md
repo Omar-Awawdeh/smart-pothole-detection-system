@@ -22,7 +22,7 @@ This project implements a mobile application for real-time pothole detection usi
 
 ### Phase 1: AI Model Training ✅ COMPLETE
 **Location**: `ai-model/`  
-**Status**: Training complete with excellent results!
+**Status**: Recall-tuned baseline established with improved balance between recall and precision.
 
 #### Completed:
 - ✅ Dataset collection (3 public sources)
@@ -32,22 +32,25 @@ This project implements a mobile application for real-time pothole detection usi
 - ✅ Google Colab notebook created
 - ✅ Export pipeline configured
 - ✅ Documentation written
-- ✅ **Model trained successfully on Colab T4 GPU**
-- ✅ **Model exported to TFLite (float16)**
+- ✅ **Original baseline trained successfully on Colab T4 GPU**
+- ✅ **Recall-tuned YOLOv8n baseline trained on Colab A100 GPU**
+- ✅ **Original TFLite model exported (float16)**
 - ✅ **Files saved to Google Drive**
 
 #### Results Achieved:
-- ✅ mAP@50: **80.66%** (exceeds 80% target)
-- ✅ mAP@50-95: **50.45%** (exceeds 50% target)
-- ✅ Precision: **81.37%** (exceeds 80% target)
-- ✅ Recall: **72.04%** (meets 70% minimum)
-- ✅ Model size: ~6MB (perfect for mobile)
-- ✅ Grade: **A+** (all metrics meet or exceed requirements)
+- ✅ Best tuned checkpoint (`ai-model/training_runs/yolov8n_recall_a/weights/best.pt`)
+- ✅ mAP@50: **81.45%**
+- ✅ mAP@50-95: **52.13%**
+- ✅ Precision: **79.98%**
+- ✅ Recall: **75.90%**
+- ✅ Recommended operating point after threshold sweep: confidence **0.30**, NMS IoU **0.45**
+- ✅ Operating-point precision/recall: **77.41% / 77.02%**
+- ✅ Legacy Android TFLite size: ~6MB; tuned export workflow now scripted via `ai-model/export.py`
 
 #### Next Action:
-- ✅ `best_float16.tflite` integrated into Android assets: `android/app/src/main/assets/best_float16.tflite`
-- 🔄 Validate inference output vs expected metrics on target devices
-- 🔄 Calibrate thresholds (confidence/IoU) and performance profiling
+- ✅ Updated Android defaults to the tuned operating point (confidence `0.30`, NMS `0.45`)
+- 🔄 Export the tuned `best.pt` baseline to a fresh `.tflite` artifact
+- 🔄 Validate tuned inference output vs expected metrics on target devices
 
 ---
 

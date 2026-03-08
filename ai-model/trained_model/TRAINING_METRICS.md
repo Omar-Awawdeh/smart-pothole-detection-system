@@ -1,22 +1,22 @@
-# YOLOv8n Pothole Detection - Training Results
+# YOLOv8n Pothole Detection - Recall-Tuned Baseline Results
 
-**Training Date**: January 30, 2026  
-**Training Platform**: Google Colab (T4 GPU)  
-**Training Duration**: ~2-3 hours  
+**Training Date**: March 2026  
+**Training Platform**: Google Colab (A100 GPU)  
+**Training Duration**: ~35-45 minutes  
 **Model Architecture**: YOLOv8n (nano)
 
 ---
 
-## Final Validation Metrics
+## Best Checkpoint Validation Metrics
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| **mAP@50** | **80.66%** | >80% | ✅ **EXCEEDS** |
-| **mAP@50-95** | **50.45%** | >50% | ✅ **EXCEEDS** |
-| **Precision** | **81.37%** | >80% | ✅ **EXCEEDS** |
-| **Recall** | **72.04%** | >70% | ✅ **MEETS** |
+| **mAP@50** | **81.45%** | >80% | ✅ **EXCEEDS** |
+| **mAP@50-95** | **52.13%** | >50% | ✅ **EXCEEDS** |
+| **Precision** | **79.98%** | >80% | ⚠️ **SLIGHTLY BELOW TARGET** |
+| **Recall** | **75.90%** | >70% | ✅ **EXCEEDS** |
 
-**Overall Grade**: A+ (All metrics meet or exceed requirements)
+**Overall Grade**: A (Recall improved materially while precision stayed near target)
 
 ---
 
@@ -42,29 +42,31 @@
 ### Model Parameters
 - **Base Model**: YOLOv8n pretrained on COCO
 - **Input Size**: 640×640×3
-- **Epochs**: 100 (with early stopping patience=20)
+- **Epochs**: 160 (with early stopping patience=40)
 - **Batch Size**: 16
 - **Optimizer**: AdamW
-- **Initial Learning Rate**: 0.01
+- **Initial Learning Rate**: 0.005
 - **Weight Decay**: 0.0005
+- **LR Schedule**: Cosine decay enabled
+- **Close Mosaic**: Final 10 epochs
 
 ### Data Augmentation
-- HSV Color Jittering (H: 0.015, S: 0.7, V: 0.4)
-- Random Rotation: ±10°
-- Translation: 10%
-- Scale: 0.5
+- HSV Color Jittering (H: 0.015, S: 0.6, V: 0.4)
+- Random Rotation: ±7.5°
+- Translation: 8%
+- Scale: 0.4
 - Horizontal Flip: 50%
-- Mosaic Augmentation: 100%
-- Mixup Augmentation: 10%
+- Mosaic Augmentation: 50%
+- Mixup Augmentation: 0%
 
 ---
 
 ## Model Specifications
 
 ### Output Files
-- **TFLite Model**: `best_float16.tflite`
-- **File Size**: ~6MB (float16 quantization)
-- **PyTorch Weights**: `best.pt` (backup)
+- **Current Baseline Weights**: `ai-model/training_runs/yolov8n_recall_a/weights/best.pt`
+- **Threshold Sweep Results**: `threshold_sweep_results.json`
+- **Legacy TFLite Model**: `best_float16.tflite` (export refresh pending)
 
 ### Input/Output Specifications
 - **Input Shape**: `[1, 640, 640, 3]` (NHWC format)
@@ -78,9 +80,14 @@
   - Channel 4: confidence score (0-1)
 
 ### Inference Parameters
-- **Recommended Confidence Threshold**: 0.5
-- **NMS IoU Threshold**: 0.5
+- **Recommended Confidence Threshold**: 0.30
+- **NMS IoU Threshold**: 0.45
 - **Expected FPS on Mobile**: 25-30 FPS
+
+### Threshold Sweep Summary
+- **Best F1**: confidence `0.45`, NMS IoU `0.45`
+- **Recall-Focused Operating Point**: confidence `0.30`, NMS IoU `0.45`
+- **Recall-Focused Precision/Recall**: **77.41% / 77.02%**
 
 ---
 
@@ -88,41 +95,41 @@
 
 ### What the Metrics Mean
 
-**mAP@50: 80.66%**
+**mAP@50: 81.45%**
 - Primary metric for object detection quality
 - Measures accuracy at 50% IoU (Intersection over Union) threshold
-- 80.66% indicates excellent bounding box accuracy
+- 81.45% indicates excellent bounding box accuracy
 - Exceeds industry standard for mobile applications
 
-**mAP@50-95: 50.45%**
+**mAP@50-95: 52.13%**
 - Average precision across IoU thresholds from 0.5 to 0.95
 - More stringent metric than mAP@50
-- 50.45% shows robust performance across varying overlap requirements
+- 52.13% shows robust performance across varying overlap requirements
 
-**Precision: 81.37%**
+**Precision: 79.98%**
 - Percentage of correct detections among all predictions
-- Out of 100 detections, ~81 are true potholes
-- Low false positive rate = fewer incorrect alerts
-- Excellent for user experience
+- Out of 100 detections, ~80 are true potholes
+- Slight precision trade-off accepted to recover more missed potholes
+- Still strong for real-world use
 
-**Recall: 72.04%**
+**Recall: 75.90%**
 - Percentage of actual potholes that were detected
-- Out of 100 real potholes, ~72 are detected
-- Slightly conservative but acceptable for safety applications
-- Balance between detection rate and false alarms
+- Out of 100 real potholes, ~76 are detected at the checkpoint default
+- With the tuned operating point, recall rises to ~77%
+- Better balance between detection rate and false alarms than the previous baseline
 
 ### Real-World Interpretation
 
 **In Practice**:
-- User drives over 100 potholes → App detects ~72 of them
-- App makes 100 pothole alerts → ~81 are real potholes
-- ~19 false alarms per 100 detections (acceptable)
-- ~28 missed potholes per 100 (opportunity for improvement)
+- User drives over 100 potholes → tuned checkpoint detects ~76 of them
+- At the recommended operating point, the system detects ~77 of them
+- App makes 100 pothole alerts → ~77 are real potholes at the recall-focused threshold
+- Missed potholes drop meaningfully versus the earlier baseline
 
 **Trade-off Analysis**:
-- High precision prioritized over recall
-- Better to miss some potholes than annoy users with false alerts
-- Can adjust confidence threshold in app to tune this balance
+- This tuned baseline shifts modestly toward recall without a large precision collapse
+- The best deployment trade-off from the threshold sweep is confidence `0.30`, NMS `0.45`
+- A more aggressive setting (`0.25`, `0.45`) reaches ~79.3% recall but drops precision to ~75.3%
 
 ---
 
@@ -147,30 +154,30 @@
 
 | Requirement | Target | Achieved | Status |
 |------------|--------|----------|--------|
-| Detection Accuracy | mAP@50 >75% | 80.66% | ✅ Exceeds |
-| Precision | >70% | 81.37% | ✅ Exceeds |
-| Recall | >70% | 72.04% | ✅ Meets |
+| Detection Accuracy | mAP@50 >75% | 81.45% | ✅ Exceeds |
+| Precision | >70% | 79.98% | ✅ Exceeds |
+| Recall | >70% | 75.90% | ✅ Exceeds |
 | Model Size | <10MB | ~6MB | ✅ Exceeds |
 | Mobile FPS | >20 FPS | 25-30 FPS | ✅ Exceeds |
 | Inference Time | <100ms | ~35ms | ✅ Exceeds |
 
-**Conclusion**: Model exceeds all requirements and is ready for production deployment.
+**Conclusion**: The tuned YOLOv8n baseline improves recall and overall validation quality while preserving a strong precision range suitable for deployment.
 
 ---
 
 ## Known Limitations & Future Improvements
 
 ### Current Limitations
-1. **Recall at 72%**: Misses approximately 28% of potholes
+1. **Recall remains the main bottleneck**: Even the tuned baseline still misses roughly 24% of potholes at the checkpoint default
 2. **Single Class**: Only detects potholes (no severity classification)
 3. **Dataset Bias**: Trained primarily on US/European road conditions
 4. **Lighting Sensitivity**: May perform differently in extreme lighting
 
 ### Potential Improvements
-1. **Increase Recall**:
-   - Lower confidence threshold to 0.4 (may increase false positives)
-   - Add more training data
-   - Train for 150 epochs
+1. **Increase Recall Further**:
+   - Export and validate the tuned `best.pt` checkpoint as TFLite
+   - Add more hard examples and local road data
+   - Test `imgsz=704` while keeping YOLOv8n
    
 2. **Multi-Class Detection**:
    - Add severity levels (small, medium, large)
@@ -208,12 +215,12 @@
 
 ```
 ai-model/trained_model/
-├── best_float16.tflite      (~6MB) - TensorFlow Lite model for Android
-├── best.pt                  - PyTorch weights for future fine-tuning
-├── results.csv              - Epoch-by-epoch training metrics
-├── results.png              - Training curves visualization
-├── confusion_matrix.png     - Classification performance matrix
-└── TRAINING_METRICS.md      - This document
+├── best_float16.tflite      (~6MB) - Legacy TensorFlow Lite export
+├── best.pt                  - Legacy PyTorch weights
+├── results.csv              - Legacy epoch-by-epoch training metrics
+├── results.png              - Legacy training curves visualization
+├── confusion_matrix.png     - Legacy classification performance matrix
+└── TRAINING_METRICS.md      - Current baseline documentation
 ```
 
 ---
@@ -223,10 +230,10 @@ ai-model/trained_model/
 1. ✅ Download all files from Google Drive
 2. ✅ Verify TFLite model file size (~6MB)
 3. ✅ Document metrics in project report
-4. ➡️  Copy `best_float16.tflite` to Android project
-5. ➡️  Begin Android app development (Phase 2)
-6. ➡️  Integrate TensorFlow Lite inference
-7. ➡️  Test model on real device
+4. ➡️  Export `ai-model/training_runs/yolov8n_recall_a/weights/best.pt` to TFLite
+5. ➡️  Replace the legacy Android model asset with the tuned export
+6. ➡️  Validate the new threshold defaults on device
+7. ➡️  Test the tuned model on real device
 
 ---
 

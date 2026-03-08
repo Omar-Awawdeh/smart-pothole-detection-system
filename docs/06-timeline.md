@@ -512,7 +512,7 @@ FOCUS: Integrate TFLite model into Android app
 
 TASKS:
 ├── 1. Add model file to project (15 min)
-│   ├── Create assets/models/ directory
+│   ├── Create app assets directory
 │   ├── Copy yolov8n_pothole.tflite to assets
 │   ├── Configure build.gradle to not compress tflite files
 │   └── Verify file is included in APK

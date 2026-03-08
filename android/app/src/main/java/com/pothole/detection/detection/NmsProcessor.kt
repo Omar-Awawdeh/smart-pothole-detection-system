@@ -7,7 +7,7 @@ import kotlin.math.min
 object NmsProcessor {
     fun apply(
         boxes: List<Pair<RectF, Float>>,
-        iouThreshold: Float = 0.5f
+        iouThreshold: Float = 0.45f
     ): List<Int> {
         if (boxes.isEmpty()) {
             return emptyList()

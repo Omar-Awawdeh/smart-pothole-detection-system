@@ -273,7 +273,7 @@ class PotholeDetector(context: Context) : AutoCloseable {
         private const val OUTPUT_CHANNELS = 5
         private const val NUM_PREDICTIONS = 8400
         private const val NUM_THREADS = 4
-        private const val DEFAULT_CONFIDENCE_THRESHOLD = 0.5f
-        private const val DEFAULT_NMS_IOU_THRESHOLD = 0.5f
+        private const val DEFAULT_CONFIDENCE_THRESHOLD = 0.3f
+        private const val DEFAULT_NMS_IOU_THRESHOLD = 0.45f
     }
 }

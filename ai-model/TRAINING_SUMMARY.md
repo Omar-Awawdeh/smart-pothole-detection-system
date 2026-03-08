@@ -122,7 +122,7 @@ mixup: 0.1
 ## Next Action Required
 
 ### Option 1: Train on Google Colab (Recommended)
-1. Upload `colab_training_notebook.ipynb` to Google Drive
+1. Upload `recall_tuning_colab.ipynb` to Google Drive
 2. Upload `datasets.zip` to Google Drive (or sync the datasets folder)
 3. Open notebook in Colab
 4. Set Runtime to GPU (T4)
@@ -150,7 +150,7 @@ After training completes, you will have:
    - Size: ~6MB
    - Quantization: float16
    - Ready for Android deployment
-   - Location to copy: `android/app/src/main/assets/models/`
+   - Location to copy: `android/app/src/main/assets/best_float16.tflite`
 
 3. **Training Artifacts**
    - `results.csv` - Epoch-by-epoch metrics

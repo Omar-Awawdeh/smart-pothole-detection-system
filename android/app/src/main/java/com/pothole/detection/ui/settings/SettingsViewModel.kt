@@ -20,8 +20,8 @@ private const val KEY_AUTH_EMAIL = "auth_email"
 private const val KEY_AUTH_PASSWORD = "auth_password"
 
 data class SettingsUiState(
-    val confidenceThreshold: Float = 0.5f,
-    val nmsThreshold: Float = 0.5f,
+    val confidenceThreshold: Float = 0.3f,
+    val nmsThreshold: Float = 0.45f,
     val frameSkipRate: Int = 2,
     val apiBaseUrl: String = "https://api.potholesystem.tech",
     val vehicleId: String = "22222222-0000-0000-0000-000000000001",
@@ -43,8 +43,8 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadSettings() {
         _uiState.value = SettingsUiState(
-            confidenceThreshold = sharedPreferences.getFloat(KEY_CONFIDENCE_THRESHOLD, 0.5f),
-            nmsThreshold = sharedPreferences.getFloat(KEY_NMS_THRESHOLD, 0.5f),
+            confidenceThreshold = sharedPreferences.getFloat(KEY_CONFIDENCE_THRESHOLD, 0.3f),
+            nmsThreshold = sharedPreferences.getFloat(KEY_NMS_THRESHOLD, 0.45f),
             frameSkipRate = sharedPreferences.getInt(KEY_FRAME_SKIP_RATE, 2),
             apiBaseUrl = sharedPreferences.getString(KEY_API_BASE_URL, "https://api.potholesystem.tech")
                 ?: "https://api.potholesystem.tech",

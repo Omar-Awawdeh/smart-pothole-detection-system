@@ -129,7 +129,7 @@ If any metric is below minimum:
 ## Next Steps
 
 Once you have the `.tflite` file:
-1. Copy it to: `android/app/src/main/assets/models/yolov8n_pothole_float16.tflite`
+1. Copy it to: `android/app/src/main/assets/best_float16.tflite`
 2. Proceed to Android app development (docs/02-android-app.md)
 
 ## Support

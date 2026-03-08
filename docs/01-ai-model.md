@@ -2,7 +2,7 @@
 
 **Owner**: Omar  
 **Duration**: Week 1 (Days 1-7)  
-**Output**: `yolov8n_pothole_float16.tflite` (~6MB)
+**Output**: `best_float16.tflite` (~6MB)
 
 ---
 
@@ -560,7 +560,7 @@ At the end of Week 1, Omar should have:
       └── results.png (training curves)
 
 □ Exported TFLite model
-  └── File: yolov8n_pothole_float16.tflite
+  └── File: best_float16.tflite
   └── Size: ~6 MB
   └── Location: Google Drive/pothole_model/export/
 
@@ -570,10 +570,10 @@ At the end of Week 1, Omar should have:
   └── Known limitations or failure cases
 
 □ Handoff for Android
-  └── TFLite file ready to copy to android/app/src/main/assets/models/
+  └── TFLite file ready to copy to android/app/src/main/assets/
   └── Input specification: [1, 640, 640, 3] float32, normalized 0-1
   └── Output specification: [1, 5, 8400] float32
-  └── Recommended confidence threshold: 0.5
+  └── Recommended confidence threshold: 0.30
 ```
 
 ---
@@ -598,14 +598,14 @@ After completing AI model training:
 
 1. **Copy model file** to Android project:
    ```
-   android/app/src/main/assets/models/yolov8n_pothole_float16.tflite
+    android/app/src/main/assets/best_float16.tflite
    ```
 
 2. **Share model specs** with Android development:
    - Input: `[1, 640, 640, 3]` float32, values normalized 0-1
    - Output: `[1, 5, 8400]` float32
-   - Confidence threshold: 0.5 (adjustable)
-   - NMS IoU threshold: 0.5
+   - Confidence threshold: 0.30 (recommended tuned baseline)
+   - NMS IoU threshold: 0.45
 
 3. **Provide test images** with known potholes for Android testing
 

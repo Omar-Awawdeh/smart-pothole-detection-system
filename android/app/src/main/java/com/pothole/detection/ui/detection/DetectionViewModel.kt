@@ -36,8 +36,8 @@ data class DetectionUiState(
     val candidatesAboveThreshold: Int = 0,
     val keptAfterNms: Int = 0,
     val delegate: String = "",
-    val confidenceThreshold: Float = 0.5f,
-    val nmsThreshold: Float = 0.5f,
+    val confidenceThreshold: Float = 0.3f,
+    val nmsThreshold: Float = 0.45f,
     val frameSkipRate: Int = 2,
     val droppedFrames: Int = 0,
     val processedFrames: Int = 0,
@@ -64,8 +64,8 @@ class DetectionViewModel @Inject constructor(
     }
 
     private fun loadPreferences() {
-        val confidence = sharedPreferences.getFloat(PREF_CONFIDENCE_THRESHOLD, 0.5f)
-        val nmsThreshold = sharedPreferences.getFloat(PREF_NMS_THRESHOLD, 0.5f)
+        val confidence = sharedPreferences.getFloat(PREF_CONFIDENCE_THRESHOLD, 0.3f)
+        val nmsThreshold = sharedPreferences.getFloat(PREF_NMS_THRESHOLD, 0.45f)
         val frameSkip = sharedPreferences.getInt(PREF_FRAME_SKIP_RATE, 2)
         _uiState.update {
             it.copy(

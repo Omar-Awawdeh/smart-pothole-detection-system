@@ -825,10 +825,10 @@ OBJECT AppConfig:
     API_TIMEOUT_MS = 30_000
     
     # Detection
-    MODEL_FILENAME = "yolov8n_pothole_float16.tflite"
+    MODEL_FILENAME = "best_float16.tflite"
     INPUT_SIZE = 640
-    CONFIDENCE_THRESHOLD = 0.5
-    NMS_IOU_THRESHOLD = 0.5
+    CONFIDENCE_THRESHOLD = 0.30
+    NMS_IOU_THRESHOLD = 0.45
     FRAME_SKIP_RATE = 2  # Process every Nth frame
     
     # Deduplication

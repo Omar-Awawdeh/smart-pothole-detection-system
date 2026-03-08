@@ -81,11 +81,11 @@ graduation_project/
 ## Current Status
 
 ### ✅ Phase 1: AI Model Training - COMPLETE
-**Status**: Model trained and exported to TensorFlow Lite
+**Status**: Recall-tuned YOLOv8n baseline trained; fresh TFLite export flow is now scripted
 
 - ✅ Dataset collected and preprocessed (2,642 images, 9,077 potholes)
 - ✅ Training completed (YOLOv8n)
-- ✅ Exported to TFLite (float16)
+- ✅ TFLite export workflow scripted for the tuned baseline
 - ✅ Comprehensive documentation written
 
 **Model Artifact (Android)**: `android/app/src/main/assets/best_float16.tflite`

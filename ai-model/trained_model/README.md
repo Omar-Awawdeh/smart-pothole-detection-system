@@ -1,6 +1,12 @@
 # Trained Model Artifacts
 
-This directory contains the trained YOLOv8n pothole detection model and associated artifacts.
+This directory contains the legacy exported YOLOv8n TFLite artifact plus documentation for the current tuned baseline.
+
+## Current Baseline
+
+- **Current tuned weights**: `../training_runs/yolov8n_recall_a/weights/best.pt`
+- **Best checkpoint validation metrics**: mAP@50 `81.45%`, mAP@50-95 `52.13%`, precision `79.98%`, recall `75.90%`
+- **Recommended operating point**: confidence `0.30`, NMS IoU `0.45`
 
 ## Download Instructions
 
@@ -10,7 +16,7 @@ This directory contains the trained YOLOv8n pothole detection model and associat
 1. ✅ `best_float16.tflite` (~6MB)
    - **This is the main model file for Android**
    - Float16 quantized TensorFlow Lite format
-   - Copy to: `android/app/src/main/assets/models/`
+   - Copy to: `android/app/src/main/assets/best_float16.tflite`
 
 ### Documentation Files  
 2. ✅ `results.csv`
@@ -54,7 +60,7 @@ ai-model/trained_model/
 
 - **Input**: 640×640×3 RGB image, float32, normalized [0-1]
 - **Output**: [1, 5, 8400] tensor (class + bbox)
-- **Accuracy**: mAP@50 = 80.66%
+- **Legacy export accuracy reference**: superseded by the tuned baseline in `../training_runs/yolov8n_recall_a/`
 - **Size**: ~6MB
 - **Format**: TensorFlow Lite (float16)
 
@@ -78,4 +84,4 @@ ls -lh best_float16.tflite
 
 ## Support
 
-See `TRAINING_METRICS.md` for detailed performance analysis.
+See `TRAINING_METRICS.md` for detailed performance analysis and the tuned baseline summary.

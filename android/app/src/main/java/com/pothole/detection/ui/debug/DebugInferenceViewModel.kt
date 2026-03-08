@@ -26,8 +26,8 @@ import javax.inject.Inject
 
 data class DebugInferenceUiState(
     val assetPath: String = "debug_frames/frame_01.jpg",
-    val confidenceThreshold: Float = 0.5f,
-    val nmsThreshold: Float = 0.5f,
+    val confidenceThreshold: Float = 0.3f,
+    val nmsThreshold: Float = 0.45f,
     val isRunning: Boolean = false,
     val bitmap: Bitmap? = null,
     val detections: List<DetectionResult> = emptyList(),

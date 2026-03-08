@@ -29,7 +29,7 @@ This directory contains scripts and configuration to execute the AI Model Traini
 
 **Steps:**
 1. Read `COLAB_INSTRUCTIONS.md` for detailed guide
-2. Upload `colab_training_notebook.ipynb` to Google Drive
+2. Upload `recall_tuning_colab.ipynb` to Google Drive
 3. Open with Google Colaboratory
 4. Follow the notebook cells sequentially
 
@@ -82,7 +82,8 @@ python ingest_data.py
 
 ## Key Files
 
-- `colab_training_notebook.ipynb` - Complete Google Colab training pipeline
+- `recall_tuning_colab.ipynb` - Recall-tuning Colab pipeline with threshold sweep and TFLite export
+- `colab_training_notebook.ipynb` - Original Colab training pipeline
 - `COLAB_INSTRUCTIONS.md` - Detailed Colab setup guide
 - `train.py` - Local training script
 - `export.py` - Model export to TFLite
@@ -115,5 +116,5 @@ After training completes, you should have:
 
 1. Train the model using Google Colab (recommended)
 2. Download the `.tflite` file from Google Drive
-3. Copy to: `../android/app/src/main/assets/models/`
+3. Copy to: `../android/app/src/main/assets/best_float16.tflite`
 4. Proceed to Android app development (see `../docs/02-android-app.md`)

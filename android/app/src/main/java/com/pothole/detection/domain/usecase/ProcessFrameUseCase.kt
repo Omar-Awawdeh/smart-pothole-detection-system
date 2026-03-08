@@ -43,8 +43,8 @@ class ProcessFrameUseCase @Inject constructor(
 
     suspend fun execute(
         bitmap: Bitmap,
-        confidenceThreshold: Float = 0.5f,
-        nmsThreshold: Float = 0.5f
+        confidenceThreshold: Float = 0.3f,
+        nmsThreshold: Float = 0.45f
     ): ProcessResult {
         val debugResult = detector.detectWithDebug(bitmap, confidenceThreshold, nmsThreshold)
         val detections = debugResult.detections
